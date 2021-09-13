@@ -13,7 +13,7 @@ export class EntityNotFoundExceptionFilter implements ExceptionFilter{
                 path: request.url,
                 timestamp: new Date().toLocaleString(),
                 error: 'Not Found', 
-                message: "No se pudo encontrar el curso",
+                message: "No se pudo encontrar la entidad",
                 specificError: exception.message
             }
         );
