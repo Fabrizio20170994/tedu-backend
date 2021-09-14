@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CourseEntity } from 'src/course/course.entity';
 import { Repository } from 'typeorm';
+import { createPostDTO } from './create-post.dto';
 import { PostEntity } from './post.entity';
+import { updatePostDTO } from './update-post.dto';
 
 @Injectable()
 export class PostService {
@@ -36,6 +38,42 @@ export class PostService {
         });
         post3.course = curso1;
         await this.postRepository.save(post3);
+    }
+
+    async findAll(): Promise<PostEntity[]>{
+        //Considerar restringir a traer solo los posts de un curso
+        return await this.postRepository.find();
+    }
+
+    //Revisar bien
+    async create(data: Partial<createPostDTO>): Promise<PostEntity>{
+        const postToCreate = this.postRepository.create();
+        postToCreate.text = data.text;
+        const curso = await this.courseRepository.findOneOrFail(data.course_id);
+        postToCreate.course = curso;
+        await this.postRepository.save(postToCreate);
+        return postToCreate;
+    }
+
+    async findById(id: number): Promise<PostEntity>{
+        return await this.postRepository.findOneOrFail(id);
+    }
+    
+    //Revisar bien
+    async updateById(id: number, data: Partial<updatePostDTO>): Promise<PostEntity>{
+        await this.postRepository.update({id}, data);
+        return await this.postRepository.findOne(id);
+    }
+
+    async delete(id: number): Promise<{ deleted: boolean; }>{
+        await this.postRepository.delete(id);
+        return { deleted: true };
+    }
+
+    async findPostCourseById(id: number): Promise<PostEntity>{
+        return await this.postRepository.findOneOrFail(id, {
+            relations: ['course']
+        });
     }
 
 }

@@ -25,12 +25,12 @@ export class CourseService {
 
     async findById(id: number): Promise<CourseEntity>{
         //return await this.cursoRepository.findOne({where: {curso_id: curso_id} });
-        return await this.courseRepository.findOneOrFail({id});
+        return await this.courseRepository.findOneOrFail(id);
     }
     
     async updateById(id: number, data: Partial<courseDTO>): Promise<CourseEntity>{
         await this.courseRepository.update({id}, data);
-        return await this.courseRepository.findOne({id});
+        return await this.courseRepository.findOne(id);
     }
 
     async delete(id: number): Promise<{ deleted: boolean; }>{
@@ -38,7 +38,7 @@ export class CourseService {
         return { deleted: true };
     }
 
-    async findCoursePostsById(id: number){
+    async findCoursePostsById(id: number): Promise<CourseEntity>{
         return await this.courseRepository.findOneOrFail(id, {
             relations: ['posts']
         });
