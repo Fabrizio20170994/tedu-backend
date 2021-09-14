@@ -3,14 +3,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseConnectionService } from './database-connection.service';
-import { CursoModule } from './curso/curso.module';
+import { CourseModule } from './course/course.module';
 import { APP_FILTER } from '@nestjs/core';
 import { EntityNotFoundExceptionFilter } from './filters/entity-not-found-exception.filter';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({useClass: DatabaseConnectionService}), 
-    CursoModule],
+    CourseModule, PostModule],
   controllers: [AppController],
   providers: [
     AppService, 
