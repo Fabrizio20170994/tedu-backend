@@ -5,7 +5,7 @@ import { postDTO } from './post.dto';
 import { CourseEntity } from 'src/course/course.entity';
 
 //@Controller('posts')
-@Controller('cursos/:course_id/posts')
+@Controller('courses/:course_id/posts')
 export class PostController {
 
     constructor(
@@ -50,7 +50,7 @@ export class PostController {
     }
 
     //Opcional, Revisar
-    @Get('/:id/curso')
+    @Get('/:id/course')
     async obtenerCursoDelPost(@Param('id') id: number): Promise<CourseEntity>{
         return this.postService.findPostCourseById(id);
     }

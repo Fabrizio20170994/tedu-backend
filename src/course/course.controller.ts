@@ -3,7 +3,7 @@ import { courseDTO } from './course.dto';
 import { CourseEntity } from './course.entity';
 import { CourseService } from './course.service';
 
-@Controller('cursos')
+@Controller('courses')
 export class CourseController {
 
     constructor(private courseService: CourseService) {}
