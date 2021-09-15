@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CourseEntity } from 'src/course/course.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, QueryFailedError, Repository, UpdateResult } from 'typeorm';
 import { PostEntity } from './post.entity';
 import { postDTO } from './post.dto';
 
@@ -13,7 +13,7 @@ export class PostService {
         @InjectRepository(CourseEntity) private courseRepository: Repository<CourseEntity>
     ) {}    
 
-    async seed(){
+    /*async seed(){
         const curso1 = this.courseRepository.create({
             vacancies: 40,
             desc: 'Este es el curso de prueba',
@@ -37,10 +37,9 @@ export class PostService {
         });
         post3.course = curso1;
         await this.postRepository.save(post3);
-    }
+    }*/
 
     async findAll(): Promise<PostEntity[]>{
-        //Considerar restringir a traer solo los posts de un curso
         return await this.postRepository.find();
     }
     
@@ -56,23 +55,58 @@ export class PostService {
         const curso = await this.courseRepository.findOneOrFail(course_id);
         postToCreate.course = curso;
         return await this.postRepository.save(postToCreate);
-        //return postToCreate;
     }
 
-    //Revisar para que traiga el post siempre y cuando pertenezca al curso en el controller
+    /*
     async findById(id: number): Promise<PostEntity>{
         return await this.postRepository.findOneOrFail(id);
+    }*/
+
+    async findCoursePostById(course_id: number, post_id: number){
+        return await this.postRepository
+        .createQueryBuilder('post')
+        .where('post.id = :postId', {postId: post_id})
+        .andWhere('post.course_id = :courseId', {courseId: course_id})
+        .getOneOrFail();
     }
     
-    //Revisar bien
+    /*
     async updateById(id: number, data: Partial<postDTO>): Promise<PostEntity>{
         await this.postRepository.update(id, data);
         return await this.postRepository.findOne(id);
+    }*/
+
+    async updateCoursePostById(
+        course_id: number, 
+        post_id: number, 
+        data: Partial<postDTO>): Promise<any>
+    {
+        const updateRes: UpdateResult = await this.postRepository
+        .createQueryBuilder()
+        .update('post')
+        .set(data)
+        .where('post.id = :postId', {postId: post_id})
+        .andWhere('post.course_id = :courseId', {courseId: course_id})
+        .execute();
+        if(updateRes.affected > 0){
+            return await this.postRepository.findOneOrFail(post_id);
+        }
+        return { affected: updateRes.affected };
     }
 
-    async delete(id: number): Promise<{ deleted: boolean; }>{
-        await this.postRepository.delete(id);
-        return { deleted: true };
+    async deleteCoursePostById(course_id: number, post_id: number): Promise<{ deleted: boolean; }>{
+        //await this.postRepository.delete(id);
+        const deleteRes: DeleteResult = await this.postRepository
+        .createQueryBuilder()
+        .delete()
+        .from('post')
+        .where('post.id = :postId', {postId: post_id})
+        .andWhere('post.course_id = :courseId', {courseId: course_id})
+        .execute();
+        if(deleteRes.affected > 0){
+            return { deleted: true };
+        }
+        return { deleted: false };
     }
 
     async findPostCourseById(id: number): Promise<CourseEntity>{

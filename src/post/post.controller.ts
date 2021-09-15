@@ -12,11 +12,11 @@ export class PostController {
         private postService: PostService
     ) {}
 
-    @Get('seed')
+    /*@Get('seed')
     async seed(): Promise<string>{
         this.postService.seed();
         return 'Sedeo Completado';
-    }
+    }*/
 
     @Get('allPosts')
     async obtenerTodosLosPosts(): Promise<PostEntity[]>{
@@ -33,23 +33,28 @@ export class PostController {
         return this.postService.create(course_id, data);
     }
 
-    //Revisar para que traiga el post siempre y cuando pertenezca al curso en el controller
     @Get(':id')
-    async obtenerPost(@Param('id') post_id: number): Promise<PostEntity>{
-        return this.postService.findById(post_id);
+    async obtenerPost(@Param('course_id') course_id: number, @Param('id') post_id: number): Promise<PostEntity>{
+        return this.postService.findCoursePostById(course_id, post_id);
     }
 
     @Put(':id')
-    async actualizarPost(@Param('id') id: number, @Body() data: Partial<postDTO>): Promise<PostEntity>{
-        return this.postService.updateById(id, data);
+    async actualizarPost(
+        @Param('course_id') course_id: number, 
+        @Param('id') post_id: number, 
+        @Body() data: Partial<postDTO>): Promise<any>
+    {
+        return this.postService.updateCoursePostById(course_id, post_id, data);
     }
 
     @Delete(':id')
-    async eliminarPost(@Param('id') id: number): Promise<{ deleted: boolean; }>{
-        return this.postService.delete(id);
+    async eliminarPost(
+        @Param('course_id') course_id: number, 
+        @Param('id') post_id: number): Promise<{ deleted: boolean; }>{
+        return this.postService.deleteCoursePostById(course_id, post_id);
     }
 
-    //Opcional, Revisar
+    //Opcional
     @Get('/:id/course')
     async obtenerCursoDelPost(@Param('id') id: number): Promise<CourseEntity>{
         return this.postService.findPostCourseById(id);
