@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { createPostDTO } from './create-post.dto';
 import { PostEntity } from './post.entity';
 import { PostService } from './post.service';
-import { updatePostDTO } from './update-post.dto';
+import { postDTO } from './post.dto';
+import { CourseEntity } from 'src/course/course.entity';
 
-@Controller('posts')
+//@Controller('posts')
+@Controller('cursos/:course_id/posts')
 export class PostController {
 
     constructor(
@@ -17,23 +18,29 @@ export class PostController {
         return 'Sedeo Completado';
     }
 
-    @Get()
-    async obtenerPosts(): Promise<PostEntity[]>{
+    @Get('allPosts')
+    async obtenerTodosLosPosts(): Promise<PostEntity[]>{
         return this.postService.findAll();
     }
 
-    @Post()
-    async crearPost(@Body() data: Partial<createPostDTO>): Promise<PostEntity>{
-        return this.postService.create(data);
+    @Get()
+    async obtenerPostsDelCurso(@Param('course_id') course_id: number): Promise<PostEntity[]>{
+        return this.postService.findAllCoursePostsById(course_id);
     }
 
+    @Post()
+    async crearPost(@Param('course_id') course_id: number, @Body() data: Partial<postDTO>): Promise<PostEntity>{
+        return this.postService.create(course_id, data);
+    }
+
+    //Revisar para que traiga el post siempre y cuando pertenezca al curso en el controller
     @Get(':id')
-    async obtenerPost(@Param('id') curso_id: number): Promise<PostEntity>{
-        return this.postService.findById(curso_id);
+    async obtenerPost(@Param('id') post_id: number): Promise<PostEntity>{
+        return this.postService.findById(post_id);
     }
 
     @Put(':id')
-    async actualizarPost(@Param('id') id: number, @Body() data: Partial<updatePostDTO>): Promise<PostEntity>{
+    async actualizarPost(@Param('id') id: number, @Body() data: Partial<postDTO>): Promise<PostEntity>{
         return this.postService.updateById(id, data);
     }
 
@@ -42,8 +49,9 @@ export class PostController {
         return this.postService.delete(id);
     }
 
+    //Opcional, Revisar
     @Get('/:id/curso')
-    async obtenerCursoDelPost(@Param('id') id: number): Promise<PostEntity>{
+    async obtenerCursoDelPost(@Param('id') id: number): Promise<CourseEntity>{
         return this.postService.findPostCourseById(id);
     }
 

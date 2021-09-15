@@ -33,9 +33,9 @@ export class CourseController {
         return this.courseService.delete(id);
     }
 
-    @Get('/:id/posts')
+    /*@Get('/:id/posts')
     async obtenerPostsdelCurso(@Param('id') id: number): Promise<CourseEntity>{
         return this.courseService.findCoursePostsById(id);
-    }
+    }*/
 
 }
