@@ -8,11 +8,12 @@ import { APP_FILTER } from '@nestjs/core';
 import { EntityNotFoundErrorFilter } from './filters/entity-not-found-error.filter';
 import { PostModule } from './post/post.module';
 import { QueryFailedErrorFilter } from './filters/query-failed-error.filter';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({useClass: DatabaseConnectionService}), 
-    CourseModule, PostModule],
+    CourseModule, PostModule, AuthModule],
   controllers: [AppController],
   providers: [
     AppService, 
