@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CourseEntity } from 'src/course/course.entity';
+import { CourseEntity } from '../course/course.entity';
 import { DeleteResult, QueryFailedError, Repository, UpdateResult } from 'typeorm';
 import { PostEntity } from './post.entity';
 import { postDTO } from './post.dto';

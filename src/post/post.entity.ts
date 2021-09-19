@@ -1,4 +1,4 @@
-import { CourseEntity } from 'src/course/course.entity';
+import { CourseEntity } from '../course/course.entity';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('post')

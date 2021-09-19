@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { PostEntity } from './post.entity';
 import { PostService } from './post.service';
 import { postDTO } from './post.dto';
-import { CourseEntity } from 'src/course/course.entity';
+import { CourseEntity } from '../course/course.entity';
 
 //@Controller('posts')
 @Controller('courses/:course_id/posts')
