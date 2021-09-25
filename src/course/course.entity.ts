@@ -10,6 +10,9 @@ export class CourseEntity {
     @Column('int') 
     vacancies: number;
 
+    @Column('varchar', { length: 180, nullable: true })
+    name: string;
+
     @Column('varchar', { length: 200, nullable: true })
     desc: string;
 
