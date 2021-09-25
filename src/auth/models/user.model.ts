@@ -12,7 +12,7 @@ export class LoginDTO {
     password: string 
 }
 
-export class RegisterDTO extends LoginDTO{
+export class RegisterDTO extends LoginDTO {
     @IsString()
     @MinLength(2)
     name: string;
@@ -25,5 +25,9 @@ export class RegisterDTO extends LoginDTO{
     @IsOptional()
     @IsPhoneNumber("PE")
     phone: string;
+}
+
+export interface AuthPayload {
+    email: string;
 }
 

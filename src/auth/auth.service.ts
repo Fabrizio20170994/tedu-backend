@@ -1,20 +1,24 @@
 import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
-import { LoginDTO, RegisterDTO } from './models/user.dto';
+import { LoginDTO, RegisterDTO } from './models/user.model';
 
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>
+        @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
+        private jwtService: JwtService
     ) {}
 
     async register(credentials: RegisterDTO) {
         try {
             const user = this.userRepo.create(credentials);
-            await user.save()
-            return user;
+            await user.save();
+            const payload = {email: user.email};
+            const token = this.jwtService.sign(payload);
+            return { user: {...user.toJson(), token} };
         }
         catch(err) {
             if (err.code === '23505') {
@@ -29,6 +33,8 @@ export class AuthService {
             if (!user.comparePassword(password)) {
                 throw new UnauthorizedException('Credenciales inválidas')
             }
-            return user;        
+            const payload = {email: user.email};
+            const token = this.jwtService.sign(payload);
+            return { user: {...user.toJson(), token} };        
     }
 }
