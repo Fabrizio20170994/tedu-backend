@@ -1,5 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Generated, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { PostEntity } from '../post/post.entity';
+import { UserCourseEntity } from '../user-course/user-course.entity';
 
 @Entity('course')
 export class CourseEntity {
@@ -7,10 +8,14 @@ export class CourseEntity {
     @PrimaryGeneratedColumn() 
     id: number;
 
+    @Column()
+    @Generated("uuid")
+    code: string;
+
     @Column('int') 
     vacancies: number;
 
-    @Column('varchar', { length: 180, nullable: true })
+    @Column('varchar', { length: 180 })
     name: string;
 
     @Column('varchar', { length: 200, nullable: true })
@@ -24,5 +29,8 @@ export class CourseEntity {
 
     @OneToMany(() => PostEntity, post => post.course, {nullable: true})
     posts: PostEntity[];
+
+    @OneToMany(() => UserCourseEntity, userCourse => userCourse.course)
+    userCourses: UserCourseEntity[];
 
 }
