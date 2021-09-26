@@ -1,10 +1,12 @@
 import { classToPlain, Exclude } from "class-transformer";
 import * as bcrypt from 'bcryptjs'
-import { BeforeInsert, Column, Entity } from "typeorm";
+import { BeforeInsert, Column, Entity, OneToMany } from "typeorm";
 import { AbstractEntity } from "../../commons/abstract-entity";
+import { UserCourseEntity } from "../../user-course/user-course.entity";
 
 @Entity('user')
 export class UserEntity extends AbstractEntity {
+
     @Column()
     name: string;
 
@@ -20,6 +22,9 @@ export class UserEntity extends AbstractEntity {
     @Column()
     @Exclude()
     password: string;
+
+    @OneToMany(() => UserCourseEntity, userCourse => userCourse.user)
+    userCourses: UserCourseEntity[];
 
     @BeforeInsert()
     async hashPassword() {
