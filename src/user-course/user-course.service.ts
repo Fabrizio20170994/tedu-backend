@@ -15,28 +15,27 @@ export class UserCourseService {
         @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>
     ) {}
 
-    async create(email: string, courseCode: string): Promise<UserCourseEntity>{
+    async create(user_id: number, courseCode: string): Promise<UserCourseEntity>{
         const course = await this.courseRepository.findOneOrFail({where: {code: courseCode}})
-        const user = await this.userRepo.findOneOrFail({ where: { email } });
+        const user = await this.userRepo.findOneOrFail(user_id);
         const userCourse = this.userCourseRepository.create();
         userCourse.course = course;
         userCourse.user = user;
         return await this.userCourseRepository.save(userCourse);
     }
 
-    async delete(email: string, course_id: number): Promise<{ message: string; }> {
-        const user = await this.userRepo.findOneOrFail({ where: { email } });
+    async delete(user_id: number, course_id: number): Promise<{ message: string; }> {
         const deleteRes: DeleteResult = await this.userCourseRepository
         .createQueryBuilder()
         .delete()
         .from('user_course')
-        .where('user_course.user_id = :userId', {userId: user.id})
+        .where('user_course.user_id = :userId', {userId: user_id})
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
         .execute();
         if(deleteRes.affected > 0){
-            return { message: `Usuario "${email}" salió del curso ${course_id} satisfactoriamente` };
+            return { message: `Usuario "${user_id}" salió del curso ${course_id} satisfactoriamente` };
         }
-        return { message: `El usuario "${email}" no esta registrado en el curso ${course_id}` };
+        return { message: `El usuario "${user_id}" no esta registrado en el curso ${course_id}` };
     }
 
 }

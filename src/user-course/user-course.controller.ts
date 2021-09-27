@@ -1,4 +1,7 @@
-import { Body, Controller, Delete, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { UserEntity } from '../auth/entities/user.entity';
+import { User } from '../auth/user.decorator';
 import { createUserCourseDTO } from './create-user-course.dto';
 import { deleteUserCourseDTO } from './delete-user-course.dto';
 import { UserCourseEntity } from './user-course.entity';
@@ -10,13 +13,15 @@ export class UserCourseController {
     constructor(private userCourseService: UserCourseService) {}
 
     @Post()
-    async unirseACurso(@Body() data: createUserCourseDTO): Promise<UserCourseEntity>{
-        return this.userCourseService.create("", data.code);
+    @UseGuards(AuthGuard())
+    async unirseACurso(@User() { id } : UserEntity, @Body() data: createUserCourseDTO): Promise<UserCourseEntity>{
+        return this.userCourseService.create(id, data.code);
     }
 
     @Delete()
-    async salirDeCurso(@Body() data: deleteUserCourseDTO): Promise<{ message: string; }>{
-        return this.userCourseService.delete("", data.id);
+    @UseGuards(AuthGuard())
+    async salirDeCurso(@User() { id } : UserEntity, @Body() data: deleteUserCourseDTO): Promise<{ message: string; }>{
+        return this.userCourseService.delete(id, data.id);
     }
 
 }
