@@ -9,11 +9,12 @@ import { EntityNotFoundErrorFilter } from './filters/entity-not-found-error.filt
 import { PostModule } from './post/post.module';
 import { QueryFailedErrorFilter } from './filters/query-failed-error.filter';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({useClass: DatabaseConnectionService}), 
-    CourseModule, PostModule, AuthModule],
+    CourseModule, PostModule, AuthModule, UserModule],
   controllers: [AppController],
   providers: [
     AppService, 

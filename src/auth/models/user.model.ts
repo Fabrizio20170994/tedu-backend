@@ -1,5 +1,4 @@
-import { Exclude } from "class-transformer";
-import { IsEmail, IsOptional, IsPhoneNumber, IsString, MaxLength, MinLength } from "class-validator"
+import { IsEmail, IsOptional, IsPhoneNumber, IsString, MinLength } from "class-validator"
 
 export class LoginDTO {
     @IsEmail()
@@ -20,6 +19,20 @@ export class RegisterDTO extends LoginDTO {
     @IsOptional()
     @IsString()
     @MinLength(2)
+    institution: string;
+
+    @IsOptional()
+    @IsPhoneNumber("PE")
+    phone: string;
+}
+
+export class UpdateUserDTO {
+    @IsString()
+    @IsOptional()
+    name: string;
+
+    @IsString()
+    @IsOptional()
     institution: string;
 
     @IsOptional()
