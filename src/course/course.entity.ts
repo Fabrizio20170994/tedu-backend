@@ -1,12 +1,10 @@
 import { Column, Entity, Generated, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { AbstractEntity } from '../commons/abstract-entity';
 import { PostEntity } from '../post/post.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
 
 @Entity('course')
-export class CourseEntity {
-
-    @PrimaryGeneratedColumn() 
-    id: number;
+export class CourseEntity extends AbstractEntity {
 
     @Column()
     @Generated("uuid")
