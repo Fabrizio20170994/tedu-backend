@@ -1,14 +1,9 @@
 import { CourseEntity } from '../course/course.entity';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { AbstractEntity } from '../commons/abstract-entity';
 
 @Entity('post')
-export class PostEntity {
-
-    @PrimaryGeneratedColumn() 
-    id: number;
-
-    @CreateDateColumn() 
-    created_at: Date;
+export class PostEntity extends AbstractEntity{
 
     @Column('text', {nullable: true})
     text: string;
