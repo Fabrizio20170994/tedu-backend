@@ -11,7 +11,7 @@ export class UserService {
     ) {}
 
     async findByEmail(id: number) {
-        return this.userRepo.findOne( {where: {id}} );
+        return this.userRepo.findOneOrFail( {where: {id}} );
     }
 
     async updateUser(id: number, data: UpdateUserDTO) {
@@ -21,14 +21,10 @@ export class UserService {
 
     async deleteUser(id: number) {
         await this.userRepo.delete({id});
-        return { message : `Usuario ${id} eliminado` }
+        return { message : `Usuario con ID ${id} eliminado` }
     }
 
     async findById(id: number) {
-        const user = await this.userRepo.findOne( {where: {id}} );
-        if (!user) {
-            throw new NotFoundException(`No se concontró al usuario con ID ${id}`)
-        }
-        return user;
+        return this.userRepo.findOneOrFail( {where: {id}} );
     }
 }
