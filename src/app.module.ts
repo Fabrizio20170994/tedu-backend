@@ -10,11 +10,12 @@ import { PostModule } from './post/post.module';
 import { QueryFailedErrorFilter } from './filters/query-failed-error.filter';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { UserCourseModule } from './user-course/user-course.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({useClass: DatabaseConnectionService}), 
-    CourseModule, PostModule, AuthModule, UserModule],
+    CourseModule, PostModule, AuthModule, UserModule, UserCourseModule],
   controllers: [AppController],
   providers: [
     AppService, 

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { UserEntity } from "../auth/entities/user.entity";
 import { CourseEntity } from "../course/course.entity";
 
@@ -6,9 +6,11 @@ import { CourseEntity } from "../course/course.entity";
 export class UserCourseEntity {
 
     @ManyToOne(() => UserEntity, user => user.userCourses, { primary: true })
+    @JoinColumn({name: 'user_id'})
     user: UserEntity;
 
     @ManyToOne(() => CourseEntity, course => course.userCourses, { primary: true })
+    @JoinColumn({name: 'course_id'})
     course: CourseEntity;
 
     @Column({default: 0})

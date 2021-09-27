@@ -62,7 +62,7 @@ export class PostService {
         return await this.postRepository.findOneOrFail(id);
     }*/
 
-    async findCoursePostById(course_id: number, post_id: number){
+    async findCoursePostById(course_id: number, post_id: number): Promise<PostEntity>{
         return await this.postRepository
         .createQueryBuilder('post')
         .where('post.id = :postId', {postId: post_id})
