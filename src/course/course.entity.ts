@@ -1,4 +1,5 @@
-import { Column, Entity, Generated, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Generated, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { UserEntity } from '../auth/entities/user.entity';
 import { AbstractEntity } from '../commons/abstract-entity';
 import { PostEntity } from '../post/post.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
@@ -24,6 +25,10 @@ export class CourseEntity extends AbstractEntity {
 
     @Column('timestamp without time zone')
     end_date: Date;
+
+    @ManyToOne(() => UserEntity, user => user.courses, {onDelete: 'CASCADE', nullable: false})
+    @JoinColumn({name: 'teacher_id'})
+    teacher: UserEntity;
 
     @OneToMany(() => PostEntity, post => post.course, {nullable: true})
     posts: PostEntity[];

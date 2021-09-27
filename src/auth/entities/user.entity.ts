@@ -3,6 +3,7 @@ import * as bcrypt from 'bcryptjs'
 import { BeforeInsert, Column, Entity, OneToMany } from "typeorm";
 import { AbstractEntity } from "../../commons/abstract-entity";
 import { UserCourseEntity } from "../../user-course/user-course.entity";
+import { CourseEntity } from "../../course/course.entity";
 
 @Entity('user')
 export class UserEntity extends AbstractEntity {
@@ -22,6 +23,9 @@ export class UserEntity extends AbstractEntity {
     @Column()
     @Exclude()
     password: string;
+
+    @OneToMany(() => CourseEntity, course => course.teacher, {nullable: true})
+    courses: CourseEntity[];
 
     @OneToMany(() => UserCourseEntity, userCourse => userCourse.user)
     userCourses: UserCourseEntity[];
