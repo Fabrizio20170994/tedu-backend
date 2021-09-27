@@ -12,21 +12,21 @@ export class UserController {
     
     @Get()
     @UseGuards(AuthGuard())
-    findCurrentUser(@User() { email } : UserEntity) {
-        return this.userService.findByEmail(email);
+    findCurrentUser(@User() { id } : UserEntity) {
+        return this.userService.findByEmail(id);
     }
 
     @Put()
     @UseGuards(AuthGuard())
-    update(@User() { email } : UserEntity, 
+    update(@User() { id } : UserEntity, 
     @Body(new ValidationPipe({transform: true, whitelist: true})) data: UpdateUserDTO) {
-        return this.userService.updateUser(email, data);
+        return this.userService.updateUser(id, data);
     }
 
     @Delete()
     @UseGuards(AuthGuard())
-    delete(@User() { email } : UserEntity) {
-        return this.userService.deleteUser(email);
+    delete(@User() { id } : UserEntity) {
+        return this.userService.deleteUser(id);
     }
 
     @Get("/:id")

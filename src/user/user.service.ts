@@ -10,18 +10,18 @@ export class UserService {
         @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>
     ) {}
 
-    async findByEmail(email: string) {
-        return this.userRepo.findOne( {where: {email}} );
+    async findByEmail(id: number) {
+        return this.userRepo.findOne( {where: {id}} );
     }
 
-    async updateUser(email: string, data: UpdateUserDTO) {
-        await this.userRepo.update({email}, data);
-        return this.findByEmail(email);
+    async updateUser(id: number, data: UpdateUserDTO) {
+        await this.userRepo.update({id}, data);
+        return this.findByEmail(id);
     }
 
-    async deleteUser(email: string) {
-        await this.userRepo.delete({email});
-        return { message : `Usuario ${email} eliminado` }
+    async deleteUser(id: number) {
+        await this.userRepo.delete({id});
+        return { message : `Usuario ${id} eliminado` }
     }
 
     async findById(id: number) {
