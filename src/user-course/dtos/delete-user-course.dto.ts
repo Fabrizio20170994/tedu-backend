@@ -1,5 +1,5 @@
 export interface deleteUserCourseDTO{
 
-    id: number
+    course_id: number
 
 }
