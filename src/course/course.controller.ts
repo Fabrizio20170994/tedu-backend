@@ -64,6 +64,12 @@ export class CourseController {
         return this.courseService.delete(id, course_id);
     }
 
+    @Get(":id/members")
+    @UseGuards(AuthGuard())
+    async verIntegrantesDeCurso(@User() { id } : UserEntity, @Param('id') course_id: number): Promise<any> {
+        return this.courseService.getMembers(id, course_id);
+    }
+
     /*@Get('/:id/posts')
     async obtenerPostsdelCurso(@Param('id') id: number): Promise<CourseEntity>{
         return this.courseService.findCoursePostsById(id);

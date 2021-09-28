@@ -55,8 +55,8 @@ export class PostService {
         .createQueryBuilder('user_course')
         .where('user_course.user_id = :userId', {userId: user_id})
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
-        .getManyAndCount();
-        if(course.teacher.id == user_id || userCourse[1] > 0){
+        .getCount();
+        if(course.teacher.id == user_id || userCourse > 0){
             return course.posts;
         } else{
             throw new UnauthorizedException('Usuario no autorizado para esta operación');
@@ -71,8 +71,8 @@ export class PostService {
         .createQueryBuilder('user_course')
         .where('user_course.user_id = :userId', {userId: user_id})
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
-        .getManyAndCount();
-        if(course.teacher.id == user_id || userCourse[1] > 0){
+        .getCount();
+        if(course.teacher.id == user_id || userCourse > 0){
             const user = await this.userRepository.findOneOrFail(user_id);
             const postToCreate = this.postRepository.create(data);
             postToCreate.course = course;
@@ -91,8 +91,8 @@ export class PostService {
         .createQueryBuilder('user_course')
         .where('user_course.user_id = :userId', {userId: user_id})
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
-        .getManyAndCount();
-        if(course.teacher.id == user_id || userCourse[1] > 0){
+        .getCount();
+        if(course.teacher.id == user_id || userCourse > 0){
             return await this.postRepository
             .createQueryBuilder('post')
             .where('post.id = :postId', {postId: post_id})

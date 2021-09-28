@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import { UserEntity } from '../auth/entities/user.entity';
@@ -14,8 +14,7 @@ export class UserCourseService {
         @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>
     ) {}
 
-    async create(user_id: number, courseCode: string): 
-    Promise<{
+    async create(user_id: number, courseCode: string): Promise<{
         message: string, 
         created: boolean, 
         vacanciesLeft: number;
@@ -60,7 +59,7 @@ export class UserCourseService {
                 };
             }else{
                 return{
-                    message: `El usuario ${user_id} es profesor del curso ${course.name}`,
+                    message: `El usuario ${user_id} ya es profesor del curso ${course.name}`,
                     created: false,
                     vacanciesLeft: course.vacancies-count
                 };
@@ -68,8 +67,7 @@ export class UserCourseService {
         }
     }
 
-    async update(teacher_id: number, course_id: number, student_id: number):
-    Promise<{
+    async update(teacher_id: number, course_id: number, student_id: number): Promise<{
         message: string, 
         updated: boolean,
         currentStudentScore: number;
@@ -80,11 +78,7 @@ export class UserCourseService {
         .andWhere('course.teacher_id = :teacherId', {teacherId: teacher_id})
         .getManyAndCount();
         if(verify[1] <= 0){
-            return {
-                message: `Usuario ${teacher_id} no es dueño del curso ${course_id}`,
-                updated: false,
-                currentStudentScore: 0
-            };
+            throw new UnauthorizedException('No autorizado para esta operación');
         } 
         const course = verify[0][0];
         const userCourse = await this.userCourseRepository
@@ -111,8 +105,7 @@ export class UserCourseService {
         };
     }
 
-    async delete(user_id: number, course_id: number): 
-    Promise<{ 
+    async leaveCourse(user_id: number, course_id: number): Promise<{ 
         message: string, 
         deleted: boolean; 
     }> {
@@ -130,9 +123,43 @@ export class UserCourseService {
             };
         }
         return { 
-            message: `El usuario ${user_id} no esta registrado en el curso ${course_id}`,
+            message: `El usuario ${user_id} no pudo salir del curso ${course_id}`,
             deleted: false 
         };
+    }
+
+    async removeStudent(
+        user_id: number, 
+        student_id: number, 
+        course_id: number
+    ): Promise<{
+        message: string, 
+        deleted: boolean;
+    }> {
+        const course = await this.courseRepository.findOneOrFail(course_id, {
+            relations: ['teacher']
+        });
+        if(course.teacher.id == user_id){
+            const deleteRes: DeleteResult = await this.userCourseRepository
+            .createQueryBuilder()
+            .delete()
+            .from('user_course')
+            .where('user_course.user_id = :userId', {userId: student_id})
+            .andWhere('user_course.course_id = :courseId', {courseId: course_id})
+            .execute();
+            if(deleteRes.affected > 0){
+                return { 
+                    message: `Estudiante ${student_id} fue eliminado del curso ${course_id} satisfactoriamente`,
+                    deleted: true 
+                };
+            }
+            return { 
+                message: `No se pudo eliminar el estudiante ${student_id} del curso ${course_id}`,
+                deleted: false 
+            };
+        } else{
+            throw new UnauthorizedException('No autorizado para esta operación');
+        }
     }
 
 }

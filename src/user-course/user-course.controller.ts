@@ -34,14 +34,23 @@ export class UserCourseController {
         return this.userCourseService.update(id, data.course_id, data.student_id)
     }
 
-    @Delete()
+    @Delete('leave')
     @UseGuards(AuthGuard())
     async salirDeCurso(@User() { id } : UserEntity, @Body() data: deleteUserCourseDTO): 
     Promise<{ 
         message: string, 
         deleted: boolean;
     }> {
-        return this.userCourseService.delete(id, data.course_id);
+        return this.userCourseService.leaveCourse(id, data.course_id);
+    }
+
+    @Delete()
+    @UseGuards(AuthGuard())
+    async eliminarAlumnoDeCurso(
+        @User() { id } : UserEntity,
+        @Body() data: updateUserCourseDTO
+    ){
+        return this.userCourseService.removeStudent(id, data.student_id, data.course_id);
     }
 
 }

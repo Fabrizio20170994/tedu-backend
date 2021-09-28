@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../auth/entities/user.entity';
-import { PostEntity } from '../post/post.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
 import { courseDTO } from './course.dto';
 import { CourseEntity } from './course.entity';
@@ -59,8 +58,8 @@ export class CourseService {
         .createQueryBuilder('user_course')
         .where('user_course.user_id = :userId', {userId: user_id})
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
-        .getManyAndCount();
-        if(course.teacher.id == user_id || userCourse[1] > 0){
+        .getCount();
+        if(course.teacher.id == user_id || userCourse > 0){
             return course;
         } else{
             throw new UnauthorizedException('No autorizado para esta operación');
@@ -113,17 +112,50 @@ export class CourseService {
                 message: `El curso ${course_id} fue eliminado satisfactoriamente`,
                 deleted: true 
             };
+        } else{
+            throw new UnauthorizedException('No autorizado para esta operación');
         }
-        return { 
-            message: `El Usuario ${user_id} no es el profesor del curso ${course_id}`,
-            deleted: false 
-        };
     }
 
-    async findCoursePostsById(id: number): Promise<CourseEntity>{
+    async getMembers(
+        user_id: number, 
+        course_id: number
+    ): Promise<{
+        teacher: UserEntity,
+        students: UserEntity[]
+    }> {
+        const course = await this.courseRepository.findOneOrFail(course_id, {
+            relations: ['teacher']
+        });
+        const userCourse = await this.userCourseRepository
+        .createQueryBuilder('user_course')
+        .where('user_course.user_id = :userId', {userId: user_id})
+        .andWhere('user_course.course_id = :courseId', {courseId: course_id})
+        .getCount();
+        if(course.teacher.id == user_id || userCourse > 0){
+            const temp = await this.userCourseRepository
+            .createQueryBuilder('user_course')
+            .leftJoinAndSelect('user_course.user', 'user')
+            .where('user_course.course_id = :courseId' , {courseId: course_id})
+            .getMany();
+            const students: UserEntity[] = [];
+            temp.forEach( element => {
+                students.push(element.user);
+            })
+            return {
+                teacher: course.teacher,
+                students: students
+            };
+        } else{
+            throw new UnauthorizedException('No autorizado para esta operación');
+        }
+    }
+
+    /*
+    async findCoursePostsById(id: number): Promise<CourseEntity> {
         return await this.courseRepository.findOneOrFail(id, {
             relations: ['posts']
         });
-    }
+    }*/
 
 }
