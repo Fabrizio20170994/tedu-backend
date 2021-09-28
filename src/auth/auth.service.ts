@@ -30,7 +30,8 @@ export class AuthService {
 
     async login({email, password} : LoginDTO) {
             const user = await this.userRepo.findOneOrFail({ where: { email } })
-            if (!user.comparePassword(password)) {
+            const passwordCheck = await user.comparePassword(password);
+            if (!passwordCheck) {
                 throw new UnauthorizedException('Credenciales inválidas')
             }
             const payload = {email: user.email};
