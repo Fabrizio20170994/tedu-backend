@@ -44,8 +44,11 @@ export class UserCourseService {
                 vacanciesLeft: course.vacancies-count
             };
         }else{
+            const courseWithRelation = await this.courseRepository.findOneOrFail(course.id, {
+                relations: ['teacher']
+            });
             const user = await this.userRepo.findOneOrFail(user_id);
-            if(user_id != user.id){
+            if(courseWithRelation.teacher.id != user.id){
                 const userCourse = this.userCourseRepository.create();
                 userCourse.course = course;
                 userCourse.user = user;
