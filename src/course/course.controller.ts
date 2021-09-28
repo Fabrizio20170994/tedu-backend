@@ -14,8 +14,7 @@ export class CourseController {
 
     @Get()
     @UseGuards(AuthGuard())
-    async obtenerMisCursos(@User() { id } : UserEntity): 
-    Promise<{
+    async obtenerMisCursos(@User() { id } : UserEntity): Promise<{
         enrolledCourses: CourseEntity[], 
         ownedCourses: CourseEntity[]
     }> {
@@ -24,13 +23,19 @@ export class CourseController {
 
     @Post()
     @UseGuards(AuthGuard())
-    async crearUnCurso(@User() { id } : UserEntity, @Body() data: Partial<courseDTO>): Promise<CourseEntity>{
+    async crearUnCurso(
+        @User() { id } : UserEntity, 
+        @Body() data: Partial<courseDTO>
+    ): Promise<CourseEntity> {
         return this.courseService.create(id, data);
     }
 
     @Get(':id')
     @UseGuards(AuthGuard())
-    async obtenerCurso(@User() { id } : UserEntity, @Param('id') curso_id: number): Promise<CourseEntity>{
+    async obtenerCurso(
+        @User() { id } : UserEntity, 
+        @Param('id') curso_id: number
+    ): Promise<CourseEntity> {
         return this.courseService.findById(id, curso_id);
     }
 
@@ -40,8 +45,7 @@ export class CourseController {
         @User() { id } : UserEntity, 
         @Param('id') course_id: number, 
         @Body() data: Partial<courseDTO>
-    ): 
-    Promise<{
+    ): Promise<{
         message: string, 
         updated: boolean;
     }> {
@@ -50,8 +54,10 @@ export class CourseController {
 
     @Delete(':id')
     @UseGuards(AuthGuard())
-    async eliminarCurso(@User() { id } : UserEntity, @Param('id') course_id: number): 
-    Promise<{ 
+    async eliminarCurso(
+        @User() { id } : UserEntity, 
+        @Param('id') course_id: number
+    ): Promise<{ 
         message: string,
         deleted: boolean; 
     }> {

@@ -4,6 +4,7 @@ import { BeforeInsert, Column, Entity, OneToMany } from "typeorm";
 import { AbstractEntity } from "../../commons/abstract-entity";
 import { UserCourseEntity } from "../../user-course/user-course.entity";
 import { CourseEntity } from "../../course/course.entity";
+import { PostEntity } from "../../post/post.entity";
 
 @Entity('user')
 export class UserEntity extends AbstractEntity {
@@ -26,6 +27,9 @@ export class UserEntity extends AbstractEntity {
 
     @OneToMany(() => CourseEntity, course => course.teacher, {nullable: true})
     courses: CourseEntity[];
+
+    @OneToMany(() => PostEntity, post => post.user, {nullable: true})
+    posts: PostEntity[];
 
     @OneToMany(() => UserCourseEntity, userCourse => userCourse.user)
     userCourses: UserCourseEntity[];

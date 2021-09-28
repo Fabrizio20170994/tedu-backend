@@ -30,7 +30,7 @@ export class CourseService {
         });
         const temp = await this.userCourseRepository
         .createQueryBuilder('user_course')
-        .leftJoinAndSelect('user_course.course', 'courses')
+        .leftJoinAndSelect('user_course.course', 'course')
         .where('user_course.user_id = :userId', {userId: user_id})
         .getMany();
         const array: CourseEntity[] = [];
@@ -54,19 +54,21 @@ export class CourseService {
         const course = await this.courseRepository.findOneOrFail(course_id, {
             relations: ['teacher']
         });
-        const user = await this.userRepository.findOneOrFail(user_id);
+        //const user = await this.userRepository.findOneOrFail(user_id);
         const userCourse = await this.userCourseRepository
         .createQueryBuilder('user_course')
         .where('user_course.user_id = :userId', {userId: user_id})
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
         .getManyAndCount();
-        if(course.teacher.id == user.id || userCourse[1] > 0){
+        if(course.teacher.id == user_id || userCourse[1] > 0){
             return course;
         } else{
             throw new UnauthorizedException('No autorizado para esta operación');
         }
     }
     
+    //Considerar cambiar el update a un queryBuilder para ahi validar de frente si es profe del curso
+    //Como en el update del post service
     async updateById(user_id: number, course_id: number, data: Partial<courseDTO>):
     Promise<{
         message: string, 
