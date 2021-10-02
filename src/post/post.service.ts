@@ -57,7 +57,12 @@ export class PostService {
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
         .getCount();
         if(course.teacher.id == user_id || userCourse > 0){
-            return course.posts;
+            //return course.posts;
+            return await this.postRepository
+            .createQueryBuilder('post')
+            .leftJoinAndSelect('post.user', 'user')
+            .where('post.course_id = :courseId', {courseId: course_id})
+            .getMany();
         } else{
             throw new UnauthorizedException('Usuario no autorizado para esta operación');
         }
