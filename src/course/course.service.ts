@@ -43,6 +43,9 @@ export class CourseService {
     }
 
     async create(user_id: number, data: Partial<courseDTO>): Promise<CourseEntity>{
+        if(data.vacancies != null && data.vacancies < 0){
+            data.vacancies = 0;
+        }
         const curso = this.courseRepository.create(data);
         const teacher = await this.userRepository.findOneOrFail(user_id);
         curso.teacher = teacher;
@@ -76,8 +79,26 @@ export class CourseService {
         const course = await this.courseRepository.findOneOrFail(course_id, {
             relations: ['teacher']
         });
-        const user = await this.userRepository.findOneOrFail(user_id);
-        if(course.teacher.id == user.id){
+        //const user = await this.userRepository.findOneOrFail(user_id);   //if(course.teacher.id == user.id){
+        if(course.teacher.id == user_id){
+            if(data.vacancies != null){
+                if(data.vacancies < 0){
+                    return {
+                        message: `Nuevo número de vacantes no puede ser negativo`, 
+                        updated: false
+                    };
+                }
+                const count = await this.userCourseRepository
+                .createQueryBuilder('user_course')
+                .where('user_course.course_id = :courseId', {courseId: course.id})
+                .getCount();
+                if(count > data.vacancies){
+                    return {
+                        message: `Nuevo número de vacantes no puede ser menor al número de estudiantes actualmente matriculados`, 
+                        updated: false
+                    };
+                }
+            }
             const updateRes = await this.courseRepository.update(course_id, data);
             if(updateRes.affected > 0){
                 return {
@@ -92,7 +113,7 @@ export class CourseService {
             }
         } else{
             return {
-                message: `El usuario ${user.id} no es profesor del curso ${course.id}`, 
+                message: `El usuario ${user_id} no es profesor del curso ${course.id}`, 
                 updated: false
             };
         }
@@ -107,11 +128,19 @@ export class CourseService {
             relations: ['teacher']
         });
         if(course.teacher.id == user_id){
-            await this.courseRepository.delete(course_id);
-            return { 
-                message: `El curso ${course_id} fue eliminado satisfactoriamente`,
-                deleted: true 
-            };
+            const deleteRes = await this.courseRepository.delete(course_id);
+            if(deleteRes.affected > 0){
+                return { 
+                    message: `El curso ${course_id} fue eliminado satisfactoriamente`,
+                    deleted: true 
+                };
+            } else{
+                return {
+                    message: `El curso ${course.id} no pudo ser eliminado`, 
+                    deleted: false
+                };
+            }
+            
         } else{
             throw new UnauthorizedException('No autorizado para esta operación');
         }

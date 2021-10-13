@@ -11,7 +11,7 @@ export class CourseEntity extends AbstractEntity {
     @Generated("uuid")
     code: string;
 
-    @Column('int') 
+    @Column('int', {default: 0}) 
     vacancies: number;
 
     @Column('varchar', { length: 180 })
@@ -20,7 +20,7 @@ export class CourseEntity extends AbstractEntity {
     @Column('varchar', { length: 200, nullable: true })
     desc: string;
 
-    @Column('timestamp without time zone')
+    @Column('timestamp without time zone'/*, {default: Date.now()}*/)
     start_date: Date;
 
     @Column('timestamp without time zone')
