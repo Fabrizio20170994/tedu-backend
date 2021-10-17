@@ -5,11 +5,11 @@ import { CourseEntity } from "../course/course.entity";
 @Entity('user_course')
 export class UserCourseEntity {
 
-    @ManyToOne(() => UserEntity, user => user.userCourses, { primary: true })
+    @ManyToOne(() => UserEntity, user => user.userCourses, { primary: true, onDelete: 'CASCADE' })
     @JoinColumn({name: 'user_id'})
     user: UserEntity;
 
-    @ManyToOne(() => CourseEntity, course => course.userCourses, { primary: true })
+    @ManyToOne(() => CourseEntity, course => course.userCourses, { primary: true, onDelete: 'CASCADE' })
     @JoinColumn({name: 'course_id'})
     course: CourseEntity;
 
