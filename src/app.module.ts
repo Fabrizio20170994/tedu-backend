@@ -11,11 +11,13 @@ import { QueryFailedErrorFilter } from './filters/query-failed-error.filter';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { UserCourseModule } from './user-course/user-course.module';
+import { CommentModule } from './comment/comment.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({useClass: DatabaseConnectionService}), 
-    CourseModule, PostModule, AuthModule, UserModule, UserCourseModule],
+    CourseModule, PostModule, AuthModule, UserModule, UserCourseModule, CommentModule, FileModule],
   controllers: [AppController],
   providers: [
     AppService, 
