@@ -5,6 +5,7 @@ import { AbstractEntity } from "../../commons/abstract-entity";
 import { UserCourseEntity } from "../../user-course/user-course.entity";
 import { CourseEntity } from "../../course/course.entity";
 import { PostEntity } from "../../post/post.entity";
+import { CommentEntity } from "../../comment/comment.entity";
 
 @Entity('user')
 export class UserEntity extends AbstractEntity {
@@ -33,6 +34,9 @@ export class UserEntity extends AbstractEntity {
 
     @OneToMany(() => UserCourseEntity, userCourse => userCourse.user)
     userCourses: UserCourseEntity[];
+
+    @OneToMany(() => CommentEntity, comment => comment.user)
+    comments: CommentEntity[]
 
     @BeforeInsert()
     async hashPassword() {

@@ -9,7 +9,15 @@ import { CourseEntity } from './course.entity';
 import { CourseService } from './course.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CourseEntity, PostEntity, UserCourseEntity, UserEntity]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      CourseEntity, 
+      PostEntity, 
+      UserCourseEntity, 
+      UserEntity
+    ]), 
+    AuthModule
+  ],
   controllers: [CourseController],
   providers: [CourseService]
 })

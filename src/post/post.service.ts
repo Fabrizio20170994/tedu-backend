@@ -47,9 +47,9 @@ export class PostService {
         return await this.postRepository.find();
     }
     
-    async findAllCoursePostsById(user_id: number, course_id: number): Promise<PostEntity[]>{
+    async findAllCoursePostsById(user_id: number, course_id: number): Promise<PostEntity[]> {
         const course = await this.courseRepository.findOneOrFail(course_id, {
-            relations: ['teacher', 'posts']
+            relations: ['teacher']
         });
         const userCourse = await this.userCourseRepository
         .createQueryBuilder('user_course')
@@ -57,7 +57,7 @@ export class PostService {
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
         .getCount();
         if(course.teacher.id == user_id || userCourse > 0){
-            //return course.posts;
+            //Borré esto: .leftJoinAndSelect('post.comments', 'comments')
             return await this.postRepository
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.user', 'user')

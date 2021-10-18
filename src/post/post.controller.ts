@@ -39,7 +39,7 @@ export class PostController {
     @UseGuards(AuthGuard())
     async crearPost(
         @User() { id } : UserEntity, 
-        @Param('course_id') course_id: number, 
+        @Param('course_id') course_id: number,
         @Body() data: Partial<postDTO>
     ): Promise<PostEntity> {
         return this.postService.create(id, course_id, data);

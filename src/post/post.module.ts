@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { UserEntity } from '../auth/entities/user.entity';
+import { CommentEntity } from '../comment/comment.entity';
 import { CourseEntity } from '../course/course.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
 import { PostController } from './post.controller';
@@ -14,7 +15,8 @@ import { PostService } from './post.service';
       PostEntity, 
       CourseEntity, 
       UserEntity, 
-      UserCourseEntity
+      UserCourseEntity,
+      CommentEntity
     ]), 
     AuthModule
   ],
