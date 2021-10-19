@@ -28,7 +28,7 @@ export class RegisterDTO extends LoginDTO {
 
 export class UpdateUserDTO {
     @IsString()
-    @IsOptional()
+    @MinLength(2)
     name: string;
 
     @IsString()
