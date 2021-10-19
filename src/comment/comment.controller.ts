@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from '../auth/entities/user.entity';
 import { User } from '../auth/user.decorator';
@@ -32,6 +32,27 @@ export class CommentController {
         @Body() data: Partial<commentDTO>
     ): Promise<CommentEntity> {
         return this.commentService.createComment(id, course_id, post_id, data);
+    }
+
+    @Put(':id')
+    @UseGuards(AuthGuard())
+    async actualizarComentario(
+        @User() { id } : UserEntity,
+        @Param('id') comment_id: number,
+        @Body() data: Partial<commentDTO>
+    ){
+        return this.commentService.updateComment(id, comment_id, data);
+    }
+
+    @Delete(':id')
+    @UseGuards(AuthGuard())
+    async eliminarComentario(
+        @User() { id } : UserEntity,
+        @Param('course_id') course_id: number,
+        @Param('post_id') post_id: number,
+        @Param('id') comment_id: number
+    ) {
+        return this.commentService.deleteComment(id, course_id, comment_id);
     }
 
 }
