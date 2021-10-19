@@ -72,7 +72,10 @@ export class CommentService {
         user_id: number,
         comment_id: number,
         data: Partial<commentDTO>
-    ){
+    ): Promise<{
+        message: string,
+        updated: boolean;
+    }> {
         const comment = await this.commentRepository.findOneOrFail(comment_id, {
             relations: ['user']
         });
@@ -103,7 +106,10 @@ export class CommentService {
         user_id: number,
         course_id: number,
         comment_id: number
-    ){
+    ): Promise<{
+        message: string,
+        deleted: boolean;
+    }> {
         const comment = await this.commentRepository.findOneOrFail(comment_id, {
             relations: ['user']
         });

@@ -40,7 +40,10 @@ export class CommentController {
         @User() { id } : UserEntity,
         @Param('id') comment_id: number,
         @Body() data: Partial<commentDTO>
-    ){
+    ): Promise<{
+        message: string,
+        updated: boolean;
+    }> {
         return this.commentService.updateComment(id, comment_id, data);
     }
 
@@ -51,7 +54,10 @@ export class CommentController {
         @Param('course_id') course_id: number,
         @Param('post_id') post_id: number,
         @Param('id') comment_id: number
-    ) {
+    ): Promise<{
+        message: string,
+        deleted: boolean;
+    }> {
         return this.commentService.deleteComment(id, course_id, comment_id);
     }
 
