@@ -131,12 +131,11 @@ export class PostService {
                 message: `El post ${post_id} del curso ${course_id} ha sido actualizado correctamente`, 
                 updated: true
             };
-        } else{
-            return { 
-                message: `El post ${post_id} del curso ${course_id} no pudo ser actualizado`, 
-                updated: false
-            };
         }
+        return { 
+            message: `El post ${post_id} del curso ${course_id} no pudo ser actualizado`, 
+            updated: false
+        };
     }
 
     async deleteCoursePostById(
@@ -148,24 +147,34 @@ export class PostService {
         deleted: boolean; 
     }> {
         //await this.postRepository.delete(id);
-        const deleteRes: DeleteResult = await this.postRepository
-        .createQueryBuilder()
-        .delete()
-        .from('post')
-        .where('post.id = :postId', {postId: post_id})
-        .andWhere('post.course_id = :courseId', {courseId: course_id})
-        .andWhere('post.user_id = :userId', {userId: user_id})
-        .execute();
-        if(deleteRes.affected > 0){
+        const course = await this.courseRepository.findOneOrFail(course_id, {
+            relations: ['teacher']
+        });
+        const post = await this.postRepository.findOneOrFail(post_id, {
+            relations: ['user']
+        })
+        if(course.teacher.id == user_id || post.user.id == user_id){
+            const deleteRes: DeleteResult = await this.postRepository
+            .createQueryBuilder()
+            .delete()
+            .from('post')
+            .where('post.id = :postId', {postId: post_id})
+            .andWhere('post.course_id = :courseId', {courseId: course_id})
+            .andWhere('post.user_id = :userId', {userId: user_id})
+            .execute();
+            if(deleteRes.affected > 0){
+                return { 
+                    message: `El post ${post_id} del curso ${course_id} ha sido eliminado correctamente`, 
+                    deleted: true 
+                };
+            }
             return { 
-                message: `El post ${post_id} del curso ${course_id} ha sido eliminado correctamente`, 
-                deleted: true 
+                message: `El post ${post_id} del curso ${course_id} no pudo ser eliminado`,
+                deleted: false 
             };
+        } else{
+            throw new UnauthorizedException('Usuario no autorizado para esta operación');
         }
-        return { 
-            message: `El post ${post_id} del curso ${course_id} no pudo ser eliminado`,
-            deleted: false 
-        };
     }
 
     /*
