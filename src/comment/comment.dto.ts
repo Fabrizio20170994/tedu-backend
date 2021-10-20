@@ -1,6 +1,6 @@
 export interface commentDTO{
 
     text: string
-    //file: string;
+    file: string;
 
 }
