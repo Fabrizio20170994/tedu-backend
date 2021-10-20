@@ -1,9 +1,9 @@
 import { CourseEntity } from '../course/course.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, } from 'typeorm';
 import { AbstractEntity } from '../commons/abstract-entity';
 import { UserEntity } from '../auth/entities/user.entity';
-import { FileEntity } from '../file/file.entity';
 import { CommentEntity } from '../comment/comment.entity';
+import { PostFileEntity } from '../file/entities/post-file.entity';
 
 @Entity('post')
 export class PostEntity extends AbstractEntity{
@@ -19,9 +19,8 @@ export class PostEntity extends AbstractEntity{
     @JoinColumn({ name: 'course_id' })
     course: CourseEntity;
 
-    @OneToOne(() => FileEntity)
-    @JoinColumn({ name: 'file_id' })
-    file: FileEntity;
+    @OneToMany(() => PostFileEntity, file => file.post)
+    files: PostFileEntity[];
 
     @OneToMany(() => CommentEntity, comment => comment.post)
     comments: CommentEntity[]

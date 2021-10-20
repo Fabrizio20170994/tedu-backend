@@ -3,10 +3,12 @@ import { FileService } from './file.service';
 import { FileController } from './file.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
-import { FileEntity } from './file.entity';
+import { CommentFileEntity } from './entities/comment-file.entity';
+import { PostFileEntity } from './entities/post-file.entity';
+import { MessageFileEntity } from './entities/message-file.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([FileEntity]), AuthModule],
+  imports: [TypeOrmModule.forFeature([CommentFileEntity, PostFileEntity, MessageFileEntity]), AuthModule],
   providers: [FileService],
   controllers: [FileController]
 })

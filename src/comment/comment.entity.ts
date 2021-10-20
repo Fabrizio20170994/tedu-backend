@@ -1,7 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { UserEntity } from "../auth/entities/user.entity";
 import { AbstractEntity } from "../commons/abstract-entity";
-import { FileEntity } from "../file/file.entity";
+import { CommentFileEntity } from "../file/entities/comment-file.entity";
 import { PostEntity } from "../post/post.entity";
 
 @Entity('comment')
@@ -18,8 +18,7 @@ export class CommentEntity extends AbstractEntity{
     @JoinColumn({ name: 'user_id' })
     user: UserEntity
 
-    @OneToOne(() => FileEntity, { nullable: true })
-    @JoinColumn({ name: 'file_id' })
-    file: FileEntity;
+    @OneToMany(() => CommentFileEntity, file => file.comment)
+    files: CommentFileEntity[];
 
 }
