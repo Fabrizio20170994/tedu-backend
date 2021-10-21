@@ -76,7 +76,7 @@ export class CommentService {
         comment_id: number,
         data: Partial<commentDTO>
     ): Promise<{
-        message: string,
+        message: string;
         updated: boolean;
     }> {
         const comment = await this.commentRepository.findOneOrFail(comment_id, {
@@ -118,7 +118,10 @@ export class CommentService {
         post_id: number,
         comment_id: number,
         data: commentQualifiedDTO
-    ) {
+    ): Promise<{
+        message: string;
+        updated: boolean;
+    }> {
         const course = await this.courseRepository.findOneOrFail(course_id, {
             relations: ['teacher']
         });
@@ -164,7 +167,7 @@ export class CommentService {
         post_id: number,
         comment_id: number
     ): Promise<{
-        message: string,
+        message: string;
         deleted: boolean;
     }> {
         const comment = await this.commentRepository.findOneOrFail(comment_id, {

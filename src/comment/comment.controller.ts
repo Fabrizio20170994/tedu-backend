@@ -44,7 +44,7 @@ export class CommentController {
         @Param('id') comment_id: number,
         @Body() data: Partial<commentDTO>
     ): Promise<{
-        message: string,
+        message: string;
         updated: boolean;
     }> {
         return this.commentService.updateCommentById(id, course_id, post_id, comment_id, data);
@@ -58,7 +58,10 @@ export class CommentController {
         @Param('post_id') post_id: number,
         @Param('id') comment_id: number,
         @Body() data: commentQualifiedDTO
-    ) {
+    ): Promise<{
+        message: string;
+        updated: boolean;
+    }> {
         return this.commentService.updateCommentQualificationById(id, course_id, post_id, comment_id, data);
     }
 
@@ -70,7 +73,7 @@ export class CommentController {
         @Param('post_id') post_id: number,
         @Param('id') comment_id: number
     ): Promise<{
-        message: string,
+        message: string;
         deleted: boolean;
     }> {
         return this.commentService.deleteComment(id, course_id, post_id, comment_id);

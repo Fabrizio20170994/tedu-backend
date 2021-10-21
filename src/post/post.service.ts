@@ -121,7 +121,7 @@ export class PostService {
         post_id: number, 
         data: Partial<postDTO>
     ): Promise<{
-            message: string, 
+            message: string;
             updated: boolean;
     }> {
         //await this.postRepository.update(id, data);
@@ -156,7 +156,10 @@ export class PostService {
         course_id: number,
         post_id: number, 
         data: postQualifiedDTO
-    ) {
+    ): Promise<{
+        message: string;
+        updated: boolean;
+    }> {
         const course = await this.courseRepository.findOneOrFail(course_id, {
             relations: ['teacher']
         });
@@ -193,7 +196,7 @@ export class PostService {
         course_id: number, 
         post_id: number
     ): Promise<{ 
-        message: string,
+        message: string;
         deleted: boolean; 
     }> {
         //await this.postRepository.delete(id);

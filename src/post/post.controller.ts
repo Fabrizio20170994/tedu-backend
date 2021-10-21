@@ -77,7 +77,10 @@ export class PostController {
         @Param('course_id') course_id: number, 
         @Param('id') post_id: number, 
         @Body() data: postQualifiedDTO
-    ) {
+    ): Promise<{
+        message: string;
+        updated: boolean;
+    }> {
         return this.postService.updateCoursePostQualificationById(id, course_id, post_id, data);
     }
 
@@ -87,7 +90,10 @@ export class PostController {
         @User() { id } : UserEntity,
         @Param('course_id') course_id: number, 
         @Param('id') post_id: number
-    ): Promise<{ deleted: boolean; }> {
+    ): Promise<{
+        message: string;
+        deleted: boolean; 
+    }> {
         return this.postService.deleteCoursePostById(id, course_id, post_id);
     }
 
