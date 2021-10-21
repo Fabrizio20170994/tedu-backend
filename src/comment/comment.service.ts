@@ -5,8 +5,9 @@ import { UserEntity } from '../auth/entities/user.entity';
 import { CourseEntity } from '../course/course.entity';
 import { PostEntity } from '../post/post.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
-import { commentDTO } from './comment.dto';
+import { commentDTO } from './dtos/comment.dto';
 import { CommentEntity } from './comment.entity';
+import { commentQualifiedDTO } from './dtos/commentQualified.dto';
 
 @Injectable()
 export class CommentService {
@@ -68,8 +69,10 @@ export class CommentService {
         }
     }
 
-    async updateComment(
+    async updateCommentById(
         user_id: number,
+        course_id: number,
+        post_id: number,
         comment_id: number,
         data: Partial<commentDTO>
     ): Promise<{
@@ -79,24 +82,78 @@ export class CommentService {
         const comment = await this.commentRepository.findOneOrFail(comment_id, {
             relations: ['user']
         });
-        if(comment.user.id == user_id){
+        const userCourse = await this.userCourseRepository
+        .createQueryBuilder('user_course')
+        .where('user_course.user_id = :userId', {userId: user_id})
+        .andWhere('user_course.course_id = :courseId', {courseId: course_id})
+        .getCount();
+        if(comment.user.id == user_id && userCourse > 0){
             const updateRes: UpdateResult = await this.commentRepository
             .createQueryBuilder()
             .update('comment')
             .set(data)
             .where('comment.id = :commentId', {commentId: comment_id})
+            .andWhere('comment.post_id = :postId', {postId: post_id})
             .execute();
             if(updateRes.affected > 0){
                 return {
                     message: `El comentario ${comment_id} ha sido actualizado correctamente`, 
                     updated: true
                 };
-            } else{
-                return { 
-                    message: `El comentario ${comment_id} no pudo ser actualizado`, 
-                    updated: false
+            }
+            return { 
+                message: `El comentario ${comment_id} no pudo ser actualizado`, 
+                updated: false
+            };
+        } else{
+            throw new UnauthorizedException('Usuario no autorizado para esta operación');
+        }
+    }
+
+    async updateCommentQualificationById(
+        user_id: number,
+        course_id: number,
+        post_id: number,
+        comment_id: number,
+        data: commentQualifiedDTO
+    ) {
+        const course = await this.courseRepository.findOneOrFail(course_id, {
+            relations: ['teacher']
+        });
+        if(course.teacher.id == user_id){
+            /* Para que de error si no encuentra el post o comment con los path variables
+            //await this.postRepository.findOneOrFail(post_id);
+            //await this.commentRepository.findOneOrFail(comment_id);
+            */
+            const comment = await this.commentRepository.findOneOrFail(comment_id, {
+                relations: ['user']
+            });
+            const updateRes: UpdateResult = await this.commentRepository
+            .createQueryBuilder()
+            .update('comment')
+            .set(data)
+            .where('comment.id = :commentId', {commentId: comment_id})
+            .andWhere('comment.post_id = :postId', {postId: post_id})
+            .execute();
+            //const updateRes: UpdateResult = await this.commentRepository.update(comment_id, data);
+            if(updateRes.affected > 0){
+                const sc = await this.countPostAndCommentsPoints(comment.user.id, course_id);
+                await this.userCourseRepository
+                .createQueryBuilder()
+                .update('user_course')
+                .set({ score: sc })
+                .where('user_course.user_id = :userId', {userId: comment.user.id})
+                .andWhere('user_course.course_id = :courseId', {courseId: course_id})
+                .execute();
+                return {
+                    message: `La calificación del comentario ${comment_id} ha sido actualizada correctamente`, 
+                    updated: true
                 };
             }
+            return { 
+                message: `La calificación del comentario ${comment_id} no pudo ser actualizada`, 
+                updated: false
+            };
         } else{
             throw new UnauthorizedException('Usuario no autorizado para esta operación');
         }
@@ -105,6 +162,7 @@ export class CommentService {
     async deleteComment(
         user_id: number,
         course_id: number,
+        post_id: number,
         comment_id: number
     ): Promise<{
         message: string,
@@ -117,12 +175,15 @@ export class CommentService {
             relations: ['teacher']
         });
         if(comment.user.id == user_id || course.teacher.id == user_id){
+            //await this.postRepository.findOneOrFail(post_id);
             const deleteRes: DeleteResult = await this.commentRepository
             .createQueryBuilder()
             .delete()
             .from('comment')
             .where('comment.id = :commentId', {commentId: comment_id})
+            .andWhere('comment.post_id = :postId', {postId: post_id})
             .execute();
+            //const deleteRes: DeleteResult = await this.commentRepository.delete(comment_id);
             if(deleteRes.affected > 0){
                 return { 
                     message: `El comentario ${comment_id} ha sido eliminado correctamente`, 
@@ -136,6 +197,41 @@ export class CommentService {
         } else{
             throw new UnauthorizedException('Usuario no autorizado para esta operación');
         }
+    }
+
+    
+    /******************FUNCTIONS*********************/
+
+    async countPostAndCommentsPoints(user_id: number, course_id: number): Promise<number>{
+        const posts: [PostEntity[], number] = await this.postRepository
+        .createQueryBuilder('post')
+        .where('post.user_id = :userId', {userId: user_id})
+        .andWhere('post.course_id = :courseId', {courseId: course_id})
+        .andWhere('post.qualified = :value', {value: true})
+        .getManyAndCount();
+        const comments: CommentEntity[] = await this.commentRepository
+        .createQueryBuilder('comment')
+        .leftJoinAndSelect('comment.post', 'post')
+        .where('comment.user_id = :userId', { userId: user_id })
+        .andWhere('comment.qualified = :value', { value: true })
+        .andWhere('post.course_id = :courseId', { courseId: course_id })
+        .getMany();
+        /*const commentsFiltered: CommentEntity[] = [];
+        posts[0].forEach(post => {
+            comments.forEach(comment => {
+                if(post.id == comment.post.id){
+                    commentsFiltered.push(comment);
+                }
+            });
+        });*/
+        /*for(let post of posts[0]){
+            for(let comment of commentsRaw){
+                if(post.id == comment.post.id){
+                    commentsFiltered.push(comment);
+                }
+            }
+        }*/
+        return posts[1]+comments.length;
     }
 
 }

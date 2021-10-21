@@ -23,7 +23,7 @@ export class UserCourseController {
         return this.userCourseService.create(id, data.code);
     }
 
-    @Put()
+    /*@Put()
     @UseGuards(AuthGuard())
     async actualizarPuntajeDeEstudiante(@User() { id } : UserEntity, @Body() data: updateUserCourseDTO):
     Promise<{
@@ -32,7 +32,7 @@ export class UserCourseController {
         currentStudentScore: number;
     }> {
         return this.userCourseService.update(id, data.course_id, data.student_id)
-    }
+    }*/
 
     @Delete('leave')
     @UseGuards(AuthGuard())

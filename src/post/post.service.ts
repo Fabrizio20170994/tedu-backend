@@ -1,11 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CourseEntity } from '../course/course.entity';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { PostEntity } from './post.entity';
-import { postDTO } from './post.dto';
+import { postDTO } from './dtos/post.dto';
 import { UserEntity } from '../auth/entities/user.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
+import { CommentEntity } from '../comment/comment.entity';
+import { postQualifiedDTO } from './dtos/postQualified.dto';
 
 @Injectable()
 export class PostService {
@@ -14,7 +16,8 @@ export class PostService {
         @InjectRepository(PostEntity) private postRepository: Repository<PostEntity>,
         @InjectRepository(CourseEntity) private courseRepository: Repository<CourseEntity>,
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
-        @InjectRepository(UserCourseEntity) private userCourseRepository: Repository<UserCourseEntity>
+        @InjectRepository(UserCourseEntity) private userCourseRepository: Repository<UserCourseEntity>,
+        @InjectRepository(CommentEntity) private commentRepository: Repository<CommentEntity>
     ) {}    
 
     /*async seed(){
@@ -88,7 +91,11 @@ export class PostService {
         }
     }
 
-    async findCoursePostById(user_id: number, course_id: number, post_id: number): Promise<PostEntity>{
+    async findCoursePostById(
+        user_id: number, 
+        course_id: number, 
+        post_id: number
+    ): Promise<PostEntity> {
         const course = await this.courseRepository.findOneOrFail(course_id, {
             relations: ['teacher']
         });
@@ -118,24 +125,67 @@ export class PostService {
             updated: boolean;
     }> {
         //await this.postRepository.update(id, data);
-        const updateRes: UpdateResult = await this.postRepository
-        .createQueryBuilder()
-        .update('post')
-        .set(data)
-        .where('post.id = :postId', {postId: post_id})
-        .andWhere('post.course_id = :courseId', {courseId: course_id})
-        .andWhere('post.user_id = :userId', {userId: user_id})
-        .execute();
-        if(updateRes.affected > 0){
-            return {
-                message: `El post ${post_id} del curso ${course_id} ha sido actualizado correctamente`, 
-                updated: true
+        const post = await this.postRepository.findOneOrFail(post_id, {
+            relations: ['user']
+        })
+        const userCourse = await this.userCourseRepository
+        .createQueryBuilder('user_course')
+        .where('user_course.user_id = :userId', {userId: user_id})
+        .andWhere('user_course.course_id = :courseId', {courseId: course_id})
+        .getCount();
+        if(post.user.id == user_id && userCourse > 0){
+            const updateRes: UpdateResult = await this.postRepository.update(post_id, data);
+            if(updateRes.affected > 0){
+                //const studentScore = this.countPostAndCommentsPoints(user_id, course_id);
+                return {
+                    message: `El post ${post_id} del curso ${course_id} ha sido actualizado correctamente`, 
+                    updated: true
+                };
+            }
+            return { 
+                message: `El post ${post_id} del curso ${course_id} no pudo ser actualizado`, 
+                updated: false
             };
+        } else{
+            throw new UnauthorizedException('Usuario no autorizado para esta operación');
+        }      
+    }
+
+    async updateCoursePostQualificationById(
+        user_id: number,
+        course_id: number,
+        post_id: number, 
+        data: postQualifiedDTO
+    ) {
+        const course = await this.courseRepository.findOneOrFail(course_id, {
+            relations: ['teacher']
+        });
+        if(course.teacher.id == user_id){
+            const post = await this.postRepository.findOneOrFail(post_id, {
+                relations: ['user']
+            });
+            const updateRes: UpdateResult = await this.postRepository.update(post_id, data);
+            if(updateRes.affected > 0){
+                const sc = await this.countPostAndCommentsPoints(post.user.id, course_id);
+                await this.userCourseRepository
+                .createQueryBuilder()
+                .update('user_course')
+                .set({ score: sc })
+                .where('user_course.user_id = :userId', {userId: post.user.id})
+                .andWhere('user_course.course_id = :courseId', {courseId: course_id})
+                .execute();
+                return {
+                    message: `La calificación del post ${post_id} ha sido actualizada correctamente`, 
+                    updated: true
+                };
+            }
+            return { 
+                message: `La calificación del post ${post_id} no pudo ser actualizada`, 
+                updated: false
+            };
+        } else{
+            throw new UnauthorizedException('Usuario no autorizado para esta operación');
         }
-        return { 
-            message: `El post ${post_id} del curso ${course_id} no pudo ser actualizado`, 
-            updated: false
-        };
     }
 
     async deleteCoursePostById(
@@ -154,14 +204,15 @@ export class PostService {
             relations: ['user']
         })
         if(course.teacher.id == user_id || post.user.id == user_id){
-            const deleteRes: DeleteResult = await this.postRepository
+            /*const deleteRes: DeleteResult = await this.postRepository
             .createQueryBuilder()
             .delete()
             .from('post')
             .where('post.id = :postId', {postId: post_id})
             .andWhere('post.course_id = :courseId', {courseId: course_id})
             .andWhere('post.user_id = :userId', {userId: user_id})
-            .execute();
+            .execute();*/
+            const deleteRes: DeleteResult = await this.postRepository.delete(post_id)
             if(deleteRes.affected > 0){
                 return { 
                     message: `El post ${post_id} del curso ${course_id} ha sido eliminado correctamente`, 
@@ -185,5 +236,39 @@ export class PostService {
         return post.course;
     }
     */
+
+    /******************FUNCTIONS*********************/
+
+    async countPostAndCommentsPoints(user_id: number, course_id: number): Promise<number>{
+        const posts: [PostEntity[], number] = await this.postRepository
+        .createQueryBuilder('post')
+        .where('post.user_id = :userId', {userId: user_id})
+        .andWhere('post.course_id = :courseId', {courseId: course_id})
+        .andWhere('post.qualified = :value', {value: true})
+        .getManyAndCount();
+        const comments: CommentEntity[] = await this.commentRepository
+        .createQueryBuilder('comment')
+        .leftJoinAndSelect('comment.post', 'post')
+        .where('comment.user_id = :userId', { userId: user_id })
+        .andWhere('comment.qualified = :value', { value: true })
+        .andWhere('post.course_id = :courseId', { courseId: course_id })
+        .getMany();
+        /*const commentsFiltered: CommentEntity[] = [];
+        posts[0].forEach(post => {
+            comments.forEach(comment => {
+                if(post.id == comment.post.id){
+                    commentsFiltered.push(comment);
+                }
+            });
+        });*/
+        /*for(let post of posts[0]){
+            for(let comment of commentsRaw){
+                if(post.id == comment.post.id){
+                    commentsFiltered.push(comment);
+                }
+            }
+        }*/
+        return posts[1]+comments.length;
+    }
 
 }

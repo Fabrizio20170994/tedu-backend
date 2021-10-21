@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { PostEntity } from './post.entity';
 import { PostService } from './post.service';
-import { postDTO } from './post.dto';
+import { postDTO } from './dtos/post.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../auth/user.decorator';
 import { UserEntity } from '../auth/entities/user.entity';
+import { postQualifiedDTO } from './dtos/postQualified.dto';
 
 //@Controller('posts')
 @Controller('courses/:course_id/posts')
@@ -67,6 +68,17 @@ export class PostController {
         updated: boolean;
     }> {
         return this.postService.updateCoursePostById(id, course_id, post_id, data);
+    }
+
+    @Put(':id/qual')
+    @UseGuards(AuthGuard())
+    async actualizarCalificacionDePost(
+        @User() { id } : UserEntity,
+        @Param('course_id') course_id: number, 
+        @Param('id') post_id: number, 
+        @Body() data: postQualifiedDTO
+    ) {
+        return this.postService.updateCoursePostQualificationById(id, course_id, post_id, data);
     }
 
     @Delete(':id')

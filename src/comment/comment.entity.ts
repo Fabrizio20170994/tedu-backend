@@ -10,6 +10,9 @@ export class CommentEntity extends AbstractEntity{
     @Column('varchar', { length: 255 ,nullable: true })
     text: string;
 
+    @Column({ default: false })
+    qualified: boolean;
+
     @ManyToOne(() => PostEntity, post => post.comments, { onDelete: 'CASCADE', nullable: false })
     @JoinColumn({ name: 'post_id' })
     post: PostEntity

@@ -2,9 +2,10 @@ import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nes
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from '../auth/entities/user.entity';
 import { User } from '../auth/user.decorator';
-import { commentDTO } from './comment.dto';
+import { commentDTO } from './dtos/comment.dto';
 import { CommentEntity } from './comment.entity';
 import { CommentService } from './comment.service';
+import { commentQualifiedDTO } from './dtos/commentQualified.dto';
 
 @Controller('courses/:course_id/posts/:post_id/comments')
 export class CommentController {
@@ -38,13 +39,27 @@ export class CommentController {
     @UseGuards(AuthGuard())
     async actualizarComentario(
         @User() { id } : UserEntity,
+        @Param('course_id') course_id: number,
+        @Param('post_id') post_id: number,
         @Param('id') comment_id: number,
         @Body() data: Partial<commentDTO>
     ): Promise<{
         message: string,
         updated: boolean;
     }> {
-        return this.commentService.updateComment(id, comment_id, data);
+        return this.commentService.updateCommentById(id, course_id, post_id, comment_id, data);
+    }
+
+    @Put(':id/qual')
+    @UseGuards(AuthGuard())
+    async actualizarCalificacionDeComentario(
+        @User() { id } : UserEntity,
+        @Param('course_id') course_id: number,
+        @Param('post_id') post_id: number,
+        @Param('id') comment_id: number,
+        @Body() data: commentQualifiedDTO
+    ) {
+        return this.commentService.updateCommentQualificationById(id, course_id, post_id, comment_id, data);
     }
 
     @Delete(':id')
@@ -58,7 +73,7 @@ export class CommentController {
         message: string,
         deleted: boolean;
     }> {
-        return this.commentService.deleteComment(id, course_id, comment_id);
+        return this.commentService.deleteComment(id, course_id, post_id, comment_id);
     }
 
 }

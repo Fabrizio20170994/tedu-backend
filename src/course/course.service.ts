@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { classToPlain } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../auth/entities/user.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
@@ -151,7 +152,8 @@ export class CourseService {
         course_id: number
     ): Promise<{
         teacher: UserEntity,
-        students: UserEntity[]
+        //students: UserEntity[]
+        students: {}[]
     }> {
         const course = await this.courseRepository.findOneOrFail(course_id, {
             relations: ['teacher']
@@ -167,9 +169,10 @@ export class CourseService {
             .leftJoinAndSelect('user_course.user', 'user')
             .where('user_course.course_id = :courseId' , {courseId: course_id})
             .getMany();
-            const students: UserEntity[] = [];
+            //const students: UserEntity[] = [];
+            const students:{}[] = []
             temp.forEach( element => {
-                students.push(element.user);
+                students.push({...element.user.toJson(), "score": element.score});
             })
             return {
                 teacher: course.teacher,

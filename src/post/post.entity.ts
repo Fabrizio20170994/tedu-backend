@@ -8,8 +8,11 @@ import { PostFileEntity } from '../file/entities/post-file.entity';
 @Entity('post')
 export class PostEntity extends AbstractEntity{
 
-    @Column('text', {nullable: true})
+    @Column('text', { nullable: true })
     text: string;
+
+    @Column({ default: false })
+    qualified: boolean;
 
     @ManyToOne(() => UserEntity, user => user.posts, {onDelete: 'CASCADE', nullable: false})
     @JoinColumn({ name: 'user_id' })

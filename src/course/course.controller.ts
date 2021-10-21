@@ -66,7 +66,14 @@ export class CourseController {
 
     @Get(":id/members")
     @UseGuards(AuthGuard())
-    async verIntegrantesDeCurso(@User() { id } : UserEntity, @Param('id') course_id: number): Promise<any> {
+    async verIntegrantesDeCurso(
+        @User() { id } : UserEntity, 
+        @Param('id') course_id: number
+    ): Promise<{
+        teacher: UserEntity;
+        //students: UserEntity[];
+        students: {}[]
+    }> {
         return this.courseService.getMembers(id, course_id);
     }
 

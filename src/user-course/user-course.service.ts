@@ -67,7 +67,7 @@ export class UserCourseService {
         }
     }
 
-    async update(teacher_id: number, course_id: number, student_id: number): Promise<{
+    /*async update(teacher_id: number, course_id: number, student_id: number): Promise<{
         message: string, 
         updated: boolean,
         currentStudentScore: number;
@@ -103,7 +103,7 @@ export class UserCourseService {
             updated: true,
             currentStudentScore: userCourseEntity.score
         };
-    }
+    }*/
 
     async leaveCourse(user_id: number, course_id: number): Promise<{ 
         message: string, 
