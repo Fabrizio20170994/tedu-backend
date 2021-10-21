@@ -240,19 +240,19 @@ export class PostService {
     /******************FUNCTIONS*********************/
 
     async countPostAndCommentsPoints(user_id: number, course_id: number): Promise<number>{
-        const posts: [PostEntity[], number] = await this.postRepository
+        const posts: number = await this.postRepository
         .createQueryBuilder('post')
         .where('post.user_id = :userId', {userId: user_id})
         .andWhere('post.course_id = :courseId', {courseId: course_id})
         .andWhere('post.qualified = :value', {value: true})
-        .getManyAndCount();
-        const comments: CommentEntity[] = await this.commentRepository
+        .getCount();
+        const comments: number = await this.commentRepository
         .createQueryBuilder('comment')
         .leftJoinAndSelect('comment.post', 'post')
         .where('comment.user_id = :userId', { userId: user_id })
         .andWhere('comment.qualified = :value', { value: true })
         .andWhere('post.course_id = :courseId', { courseId: course_id })
-        .getMany();
+        .getCount();
         /*const commentsFiltered: CommentEntity[] = [];
         posts[0].forEach(post => {
             comments.forEach(comment => {
@@ -268,7 +268,7 @@ export class PostService {
                 }
             }
         }*/
-        return posts[1]+comments.length;
+        return posts+comments;
     }
 
 }

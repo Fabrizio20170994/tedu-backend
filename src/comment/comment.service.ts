@@ -88,13 +88,15 @@ export class CommentService {
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
         .getCount();
         if(comment.user.id == user_id && userCourse > 0){
-            const updateRes: UpdateResult = await this.commentRepository
+            await this.postRepository.findOneOrFail(post_id)
+            /*const updateRes: UpdateResult = await this.commentRepository
             .createQueryBuilder()
             .update('comment')
             .set(data)
             .where('comment.id = :commentId', {commentId: comment_id})
             .andWhere('comment.post_id = :postId', {postId: post_id})
-            .execute();
+            .execute();*/
+            const updateRes: UpdateResult = await this.commentRepository.update(comment_id, data)
             if(updateRes.affected > 0){
                 return {
                     message: `El comentario ${comment_id} ha sido actualizado correctamente`, 
@@ -121,21 +123,18 @@ export class CommentService {
             relations: ['teacher']
         });
         if(course.teacher.id == user_id){
-            /* Para que de error si no encuentra el post o comment con los path variables
-            //await this.postRepository.findOneOrFail(post_id);
-            //await this.commentRepository.findOneOrFail(comment_id);
-            */
+            await this.postRepository.findOneOrFail(post_id);
             const comment = await this.commentRepository.findOneOrFail(comment_id, {
                 relations: ['user']
             });
-            const updateRes: UpdateResult = await this.commentRepository
+            /*const updateRes: UpdateResult = await this.commentRepository
             .createQueryBuilder()
             .update('comment')
             .set(data)
             .where('comment.id = :commentId', {commentId: comment_id})
             .andWhere('comment.post_id = :postId', {postId: post_id})
-            .execute();
-            //const updateRes: UpdateResult = await this.commentRepository.update(comment_id, data);
+            .execute();*/
+            const updateRes: UpdateResult = await this.commentRepository.update(comment_id, data);
             if(updateRes.affected > 0){
                 const sc = await this.countPostAndCommentsPoints(comment.user.id, course_id);
                 await this.userCourseRepository
@@ -203,19 +202,19 @@ export class CommentService {
     /******************FUNCTIONS*********************/
 
     async countPostAndCommentsPoints(user_id: number, course_id: number): Promise<number>{
-        const posts: [PostEntity[], number] = await this.postRepository
+        const posts: number = await this.postRepository
         .createQueryBuilder('post')
         .where('post.user_id = :userId', {userId: user_id})
         .andWhere('post.course_id = :courseId', {courseId: course_id})
         .andWhere('post.qualified = :value', {value: true})
-        .getManyAndCount();
-        const comments: CommentEntity[] = await this.commentRepository
+        .getCount();
+        const comments: number = await this.commentRepository
         .createQueryBuilder('comment')
         .leftJoinAndSelect('comment.post', 'post')
         .where('comment.user_id = :userId', { userId: user_id })
         .andWhere('comment.qualified = :value', { value: true })
         .andWhere('post.course_id = :courseId', { courseId: course_id })
-        .getMany();
+        .getCount();
         /*const commentsFiltered: CommentEntity[] = [];
         posts[0].forEach(post => {
             comments.forEach(comment => {
@@ -231,7 +230,7 @@ export class CommentService {
                 }
             }
         }*/
-        return posts[1]+comments.length;
+        return posts+comments;
     }
 
 }
