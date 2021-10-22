@@ -1,4 +1,5 @@
 import { Column, Entity, Generated, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { AttendanceEntity } from '../attendance/attendance.entity';
 import { UserEntity } from '../auth/entities/user.entity';
 import { AbstractEntity } from '../commons/abstract-entity';
 import { PostEntity } from '../post/post.entity';
@@ -35,5 +36,8 @@ export class CourseEntity extends AbstractEntity {
 
     @OneToMany(() => UserCourseEntity, userCourse => userCourse.course)
     userCourses: UserCourseEntity[];
+
+    @OneToMany(() => AttendanceEntity, attendance => attendance.course)
+    attendances: AttendanceEntity[];
 
 }
