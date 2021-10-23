@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, ValidationPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from '../auth/entities/user.entity';
 import { User } from '../auth/user.decorator';
-import { UserCourseEntity } from '../user-course/user-course.entity';
-import { courseDTO } from './course.dto';
+import { courseDTO } from './dtos/course.dto';
 import { CourseEntity } from './course.entity';
 import { CourseService } from './course.service';
+import { newCourseDTO } from './dtos/newCourse.dto';
 
 @Controller('courses')
 export class CourseController {
@@ -25,7 +25,7 @@ export class CourseController {
     @UseGuards(AuthGuard())
     async crearUnCurso(
         @User() { id } : UserEntity, 
-        @Body() data: Partial<courseDTO>
+        @Body(ValidationPipe) data: newCourseDTO
     ): Promise<CourseEntity> {
         return this.courseService.create(id, data);
     }
@@ -71,7 +71,6 @@ export class CourseController {
         @Param('id') course_id: number
     ): Promise<{
         teacher: UserEntity;
-        //students: UserEntity[];
         students: {}[]
     }> {
         return this.courseService.getMembers(id, course_id);

@@ -1,11 +1,14 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { classToPlain } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../auth/entities/user.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
-import { courseDTO } from './course.dto';
+import { courseDTO } from './dtos/course.dto';
 import { CourseEntity } from './course.entity';
+import { newCourseDTO } from './dtos/newCourse.dto';
+import { schedule } from './dtos/schedule.dto';
+import { attendanceDTO } from '../attendance/dtos/attendance.dto';
+import { AttendanceEntity } from '../attendance/attendance.entity';
 
 @Injectable()
 export class CourseService {
@@ -13,7 +16,8 @@ export class CourseService {
     constructor(
         @InjectRepository(CourseEntity) private courseRepository: Repository<CourseEntity>,
         @InjectRepository(UserCourseEntity) private userCourseRepository: Repository<UserCourseEntity>,
-        @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>
+        @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
+        @InjectRepository(AttendanceEntity) private attendanceRepository: Repository<AttendanceEntity>
     ) {}
 
     async findAll(): Promise<CourseEntity[]>{
@@ -43,17 +47,35 @@ export class CourseService {
         };
     }
 
-    async create(user_id: number, data: Partial<courseDTO>): Promise<CourseEntity>{
-        if(data.vacancies != null && data.vacancies < 0){
-            data.vacancies = 0;
+    async create(
+        user_id: number, 
+        data: newCourseDTO
+    ): Promise<CourseEntity> {
+        const cursoDTO: courseDTO = <courseDTO>{
+            vacancies: data.vacancies,
+            name: data.name,
+            start_date: data.start_date,
+        };
+        var daysAhead: number = data.weeks * 8;
+        cursoDTO.end_date = this.addDays(new Date(data.start_date), daysAhead);
+        if(data.desc != undefined && data.desc.length >= 0 && data.desc != null){ 
+            cursoDTO.desc = data.desc; 
         }
-        const curso = this.courseRepository.create(data);
+        /*esto da el numero de asistencias a crear*/ 
+        //const attendancesToCreate = data.schedule.length * data.weeks;
+        /**/
+        const curso = this.courseRepository.create(cursoDTO);
         const teacher = await this.userRepository.findOneOrFail(user_id);
         curso.teacher = teacher;
-        return await this.courseRepository.save(curso);
+        const cursoCreado = await this.courseRepository.save(curso);
+        await this.createAttendances(cursoCreado, new Date(data.start_date), data.weeks, data.schedule);
+        return cursoCreado;
     }
 
-    async findById(user_id: number, course_id: number): Promise<CourseEntity>{
+    async findById(
+        user_id: number, 
+        course_id: number
+    ): Promise<CourseEntity> {
         const course = await this.courseRepository.findOneOrFail(course_id, {
             relations: ['teacher']
         });
@@ -75,7 +97,7 @@ export class CourseService {
     async updateById(user_id: number, course_id: number, data: Partial<courseDTO>):
     Promise<{
         message: string, 
-        updated: boolean;
+        updated: boolean
     }> {
         const course = await this.courseRepository.findOneOrFail(course_id, {
             relations: ['teacher']
@@ -123,7 +145,7 @@ export class CourseService {
     async delete(user_id: number, course_id: number): 
     Promise<{ 
         message: string, 
-        deleted: boolean; 
+        deleted: boolean 
     }> {
         const course = await this.courseRepository.findOneOrFail(course_id, {
             relations: ['teacher']
@@ -152,7 +174,6 @@ export class CourseService {
         course_id: number
     ): Promise<{
         teacher: UserEntity,
-        //students: UserEntity[]
         students: {}[]
     }> {
         const course = await this.courseRepository.findOneOrFail(course_id, {
@@ -170,7 +191,7 @@ export class CourseService {
             .where('user_course.course_id = :courseId' , {courseId: course_id})
             .getMany();
             //const students: UserEntity[] = [];
-            const students:{}[] = []
+            const students: {}[] = []
             temp.forEach( element => {
                 students.push({...element.user.toJson(), "score": element.score});
             })
@@ -189,5 +210,45 @@ export class CourseService {
             relations: ['posts']
         });
     }*/
+
+    /*********** FUNCTIONS ************/
+
+    addDays(date: Date, days: number){
+        date.setDate(date.getDate() + days);
+        return date;
+    }
+
+    async createAttendances(course: CourseEntity, courseStartDate: Date, weeks: number, schedule: schedule[]){
+        var dateMark = courseStartDate;
+        const scheduleFlagLast = schedule.length;
+        var scheduleFlagFirst = 0;
+        /**/
+        const attendanceDTO: attendanceDTO = <attendanceDTO>{};
+        /**/
+        if(dateMark.getDay() > schedule[scheduleFlagFirst].day){
+            dateMark = this.addDays(dateMark, 7-dateMark.getDay());
+        } else if(dateMark.getDay() < schedule[scheduleFlagFirst].day) {
+            dateMark = this.addDays(dateMark, (-dateMark.getDay()));
+        }
+        for (var i = 0; i < weeks; i++) {
+            for(var j = 0; j < 7; j++){
+                if (scheduleFlagFirst < scheduleFlagLast) {
+                    if (dateMark.getDay() == schedule[scheduleFlagFirst].day) {
+                        attendanceDTO.attendance_date = dateMark; attendanceDTO.registered = false;
+                        const attendanceToSave = this.attendanceRepository.create(attendanceDTO);
+                        attendanceToSave.course = course;
+                        await this.attendanceRepository.save(attendanceToSave);
+                        dateMark = this.addDays(dateMark, 1);
+                        scheduleFlagFirst += 1;
+                    } else{
+                        dateMark = this.addDays(dateMark, 1);
+                    }
+                } else {
+                    scheduleFlagFirst = 0;
+                    dateMark = this.addDays(dateMark, 1);
+                }
+            }
+        }
+    }
 
 }
