@@ -29,7 +29,7 @@ export class CourseService {
         enrolledCourses: CourseEntity[],
         ownedCourses: CourseEntity[]
     }> {
-        const userObtained = await this.userRepository.findOneOrFail(user_id, {
+        /*const userObtained = await this.userRepository.findOneOrFail(user_id, {
             relations: ['courses']
         });
         const temp = await this.userCourseRepository
@@ -40,10 +40,29 @@ export class CourseService {
         const array: CourseEntity[] = [];
         temp.forEach( element => {
             array.push(element.course);
-        })
+        });
         return {
             enrolledCourses: array,
             ownedCourses: userObtained.courses
+        };*/
+        const ownedCourses = await this.courseRepository
+        .createQueryBuilder('course')
+        .leftJoinAndSelect('course.teacher', 'teacher')
+        .where('course.teacher_id = :teacherId', { teacherId: user_id })
+        .getMany();
+        const temp = await this.userCourseRepository
+        .createQueryBuilder('user_course')
+        .leftJoinAndSelect('user_course.course', 'course')
+        .leftJoinAndSelect('course.teacher', 'teacher')
+        .where('user_course.user_id = :userId', {userId: user_id})
+        .getMany();
+        const array: CourseEntity[] = [];
+        temp.forEach( element => {
+            array.push(element.course);
+        });
+        return {
+            enrolledCourses: array,
+            ownedCourses: ownedCourses
         };
     }
 
