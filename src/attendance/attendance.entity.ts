@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { AbstractEntity } from "../commons/abstract-entity";
 import { CourseEntity } from "../course/course.entity";
-import { UserAttendanceEntity } from "../user-attendance/user-attendace.entity";
+import { UserAttendanceEntity } from "../user-attendance/user-attendance.entity";
 
 @Entity('attendance')
 export class AttendanceEntity extends AbstractEntity{
