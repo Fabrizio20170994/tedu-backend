@@ -6,7 +6,7 @@ import { UserCourseEntity } from "../../user-course/user-course.entity";
 import { CourseEntity } from "../../course/course.entity";
 import { PostEntity } from "../../post/post.entity";
 import { CommentEntity } from "../../comment/comment.entity";
-import { UserAttendanceEntity } from "../../user-attendance/user-attendace.entity";
+import { UserAttendanceEntity } from "../../user-attendance/user-attendance.entity";
 
 @Entity('user')
 export class UserEntity extends AbstractEntity {

@@ -1,4 +1,51 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserEntity } from '../auth/entities/user.entity';
+import { CourseEntity } from '../course/course.entity';
+import { AttendanceEntity } from './attendance.entity';
 
 @Injectable()
-export class AttendanceService {}
+export class AttendanceService {
+
+    constructor(
+        @InjectRepository(AttendanceEntity) private attendanceRepository: Repository<AttendanceEntity>,
+        @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
+        @InjectRepository(CourseEntity) private courseRepository: Repository<CourseEntity>
+    ) {}
+
+    async findCourseAttendances(
+        user_id: number,
+        course_id: number
+    ): Promise<AttendanceEntity[]> {
+        const course = await this.courseRepository.findOneOrFail(course_id, {
+            relations: ['teacher']
+        });
+        if(course.teacher.id == user_id){
+            return await this.attendanceRepository
+            .createQueryBuilder('attendance')
+            .where('attendance.course_id = :courseId', {courseId: course_id})
+            .getMany();
+        } else{
+            throw new UnauthorizedException('Usuario no autorizado para esta operación');
+        }
+    }
+
+    async findCourseAttendanceById(
+        user_id: number,
+        course_id: number,
+        attendance_id: number
+    ): Promise<AttendanceEntity> {
+        const course = await this.courseRepository.findOneOrFail(course_id, {
+            relations: ['teacher']
+        });
+        if(course.teacher.id == user_id){
+            return await this.attendanceRepository.findOneOrFail(attendance_id, {
+                relations: ['userAttendances']
+            });
+        } else{
+            throw new UnauthorizedException('Usuario no autorizado para esta operación');
+        }
+    }
+
+}
