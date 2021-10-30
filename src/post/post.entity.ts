@@ -3,7 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, } from 'typeorm';
 import { AbstractEntity } from '../commons/abstract-entity';
 import { UserEntity } from '../auth/entities/user.entity';
 import { CommentEntity } from '../comment/comment.entity';
-import { PostFileEntity } from '../file/entities/post-file.entity';
+import { PostFileEntity } from '../file/post-file/post-file.entity';
 
 @Entity('post')
 export class PostEntity extends AbstractEntity{
