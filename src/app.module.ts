@@ -12,14 +12,15 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { UserCourseModule } from './user-course/user-course.module';
 import { CommentModule } from './comment/comment.module';
-import { CommentFileModule } from './file/comment-file/file.module';
+import { CommentFileModule } from './file/comment-file/comment-file.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { UserAttendanceModule } from './user-attendance/user-attendance.module';
+import { PostFileModule } from './file/post-file/post-file/post-file.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({useClass: DatabaseConnectionService}), 
-    CourseModule, PostModule, AuthModule, UserModule, UserCourseModule, CommentModule, CommentFileModule, AttendanceModule, UserAttendanceModule],
+    CourseModule, PostModule, AuthModule, UserModule, UserCourseModule, CommentModule, CommentFileModule, AttendanceModule, UserAttendanceModule, PostFileModule],
   controllers: [AppController],
   providers: [
     AppService, 
