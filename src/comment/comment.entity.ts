@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { UserEntity } from "../auth/entities/user.entity";
 import { AbstractEntity } from "../commons/abstract-entity";
-import { CommentFileEntity } from "../file/entities/comment-file.entity";
+import { CommentFileEntity } from "../file/comment-file/comment-file.entity";
 import { PostEntity } from "../post/post.entity";
 
 @Entity('comment')
