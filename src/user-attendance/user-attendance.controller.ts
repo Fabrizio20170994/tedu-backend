@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Param, Post, Put, UseGuards, ValidationPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from '../auth/entities/user.entity';
 import { User } from '../auth/user.decorator';
@@ -25,6 +25,17 @@ export class UserAttendanceController {
     }> {
         //@Body() data: Partial<courseDTO>
         return this.userAttendanceService.registerAttendance(id, course_id, attendance_id, data);
+    }
+
+    @Put('edit')
+    @UseGuards(AuthGuard())
+    async editarLista(
+        @User() { id } : UserEntity,
+        @Param('course_id') course_id: number,
+        @Param('attendance_id') attendance_id: number,
+        @Body(ValidationPipe) data: registerUserAttendanceDTO[]
+    ) {
+        return this.userAttendanceService.editAttendance(id, course_id, attendance_id, data);
     }
 
 }

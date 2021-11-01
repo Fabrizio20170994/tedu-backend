@@ -40,9 +40,12 @@ export class AttendanceService {
             relations: ['teacher']
         });
         if(course.teacher.id == user_id){
-            return await this.attendanceRepository.findOneOrFail(attendance_id, {
-                relations: ['userAttendances']
-            });
+            return await this.attendanceRepository
+            .createQueryBuilder('attendance')
+            .leftJoinAndSelect('attendance.userAttendances', 'userAttendances')
+            .leftJoinAndSelect('userAttendances.user', 'user')
+            .where('attendance.id = :attendanceId', {attendanceId: attendance_id})
+            .getOneOrFail();
         } else{
             throw new UnauthorizedException('Usuario no autorizado para esta operación');
         }
