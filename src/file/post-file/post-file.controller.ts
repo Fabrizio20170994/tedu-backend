@@ -1,8 +1,8 @@
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { UserEntity } from '../../../auth/entities/user.entity';
-import { User } from '../../../auth/user.decorator';
-import { FileDTO } from '../../file.dto';
+import { UserEntity } from '../../auth/entities/user.entity';
+import { User } from '../../auth/user.decorator';
+import { FileDTO } from '../file.dto';
 import { PostFileService } from './post-file.service';
 
 @Controller('courses/:course_id/posts/:post_id/files')
