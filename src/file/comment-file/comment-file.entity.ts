@@ -5,10 +5,10 @@ import { AbstractEntity } from "../../commons/abstract-entity";
 @Entity('comment_file')
 export class CommentFileEntity extends AbstractEntity{
 
-    @Column('varchar', { length: 255 }) 
+    @Column('varchar', { length: 255, nullable: false }) 
     key: string;
 
-    @ManyToOne(() => CommentEntity, comment => comment.files, {nullable: false})
+    @ManyToOne(() => CommentEntity, comment => comment.files, { onDelete: 'CASCADE', nullable: false })
     @JoinColumn({name: "comment_id"})
     comment: CommentEntity;
 }

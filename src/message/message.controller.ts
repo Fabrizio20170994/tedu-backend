@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from '../auth/entities/user.entity';
 import { User } from '../auth/user.decorator';
@@ -42,4 +42,12 @@ export class MessageController {
         @Param('userId') userId : number,
         ) {
         return this.messageService.getSenderMessages(id, userId) }
+
+    @Delete('/:messageId')
+    @UseGuards(AuthGuard())
+    async deleteMessages(
+        @User() { id } : UserEntity,
+        @Param('messageId') messageId : number,
+        ) {
+        return this.messageService.delete(id, messageId) }
 }

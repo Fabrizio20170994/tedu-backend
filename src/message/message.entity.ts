@@ -9,11 +9,11 @@ export class MessageEntity extends AbstractEntity{
     @Column('text') 
     text: string;
 
-    @ManyToOne(() => UserEntity, user => user.sentMessages, {nullable: false})
+    @ManyToOne(() => UserEntity, user => user.sentMessages, { onDelete: 'CASCADE', nullable: false })
     @JoinColumn({name: "sender_id"})
     sender: UserEntity;
 
-    @ManyToOne(() => UserEntity, user => user.receivedMessages, {nullable: false})
+    @ManyToOne(() => UserEntity, user => user.receivedMessages, { onDelete: 'CASCADE', nullable: false })
     @JoinColumn({name: "receiver_id"})
     receiver: UserEntity;
     

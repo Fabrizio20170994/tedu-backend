@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../auth/entities/user.entity';
@@ -41,5 +41,26 @@ export class MessageService {
 
     async getReceiverMessages(receiver: number, sender: number) {
         return await this.messageRepository.find( {where: {sender, receiver}, relations: ['receiver', 'sender']} );
+    }
+
+    async delete(senderId: number, messageId: number) {
+        const message = await this.messageRepository.findOneOrFail(messageId, {
+            relations: ['sender']
+        });
+        if (senderId != message.sender.id) {
+            throw new UnauthorizedException("El usuario actualmente logeado no es el emisor del mensaje");
+        }
+        const deleted = await this.messageRepository.delete(messageId);
+        if (deleted.affected) {
+            return {
+                message: `El mensaje ${messageId} fue eliminado`, 
+                deleted: true
+            };
+        }
+        return {
+                message: `El mensaje ${messageId} no pudo ser eliminado`, 
+                deleted: false
+            };  
+        
     }
 }
