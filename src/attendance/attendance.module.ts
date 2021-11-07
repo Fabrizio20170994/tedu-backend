@@ -6,13 +6,15 @@ import { AuthModule } from '../auth/auth.module';
 import { AttendanceEntity } from './attendance.entity';
 import { CourseEntity } from '../course/course.entity';
 import { UserEntity } from '../auth/entities/user.entity';
+import { UserCourseEntity } from '../user-course/user-course.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       AttendanceEntity,
       CourseEntity,
-      UserEntity
+      UserEntity,
+      UserCourseEntity,
     ]), 
     AuthModule
   ],

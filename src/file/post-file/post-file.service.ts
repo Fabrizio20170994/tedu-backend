@@ -1,9 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PostEntity } from '../../../post/post.entity';
-import { FileDTO } from '../../file.dto';
-import { PostFileEntity } from '../post-file.entity';
+import { PostEntity } from '../../post/post.entity';
+import { FileDTO } from '../file.dto';
+import { PostFileEntity } from './post-file.entity';
 
 @Injectable()
 export class PostFileService {

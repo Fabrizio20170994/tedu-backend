@@ -15,17 +15,19 @@ import { CommentModule } from './comment/comment.module';
 import { CommentFileModule } from './file/comment-file/comment-file.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { UserAttendanceModule } from './user-attendance/user-attendance.module';
-import { PostFileModule } from './file/post-file/post-file/post-file.module';
+import { MessageModule } from './message/message.module';
+import { PostFileModule } from './file/post-file/post-file.module';
+import { MessageFileModule } from './file/message-file/message-file.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({useClass: DatabaseConnectionService}), 
-    CourseModule, PostModule, AuthModule, UserModule, UserCourseModule, CommentModule, CommentFileModule, AttendanceModule, UserAttendanceModule, PostFileModule],
+    CourseModule, PostModule, AuthModule, UserModule, UserCourseModule, CommentModule, CommentFileModule, AttendanceModule, UserAttendanceModule, PostFileModule, MessageModule, MessageFileModule,],
   controllers: [AppController],
   providers: [
     AppService, 
     {provide: APP_FILTER, useClass: EntityNotFoundErrorFilter},
-    {provide: APP_FILTER, useClass: QueryFailedErrorFilter}
+    {provide: APP_FILTER, useClass: QueryFailedErrorFilter},
   ],
 })
 export class AppModule {}
