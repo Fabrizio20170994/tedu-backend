@@ -1,8 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
+import { AttendanceEntity } from '../attendance/attendance.entity';
 import { UserEntity } from '../auth/entities/user.entity';
 import { CourseEntity } from '../course/course.entity';
+import { UserAttendanceEntity } from '../user-attendance/user-attendance.entity';
 import { UserCourseEntity } from './user-course.entity';
 
 @Injectable()
@@ -11,9 +13,12 @@ export class UserCourseService {
     constructor(
         @InjectRepository(UserCourseEntity) private userCourseRepository: Repository<UserCourseEntity>,
         @InjectRepository(CourseEntity) private courseRepository: Repository<CourseEntity>,
-        @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>
+        @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
+        @InjectRepository(UserAttendanceEntity) private userAttendanceRepository: Repository<UserAttendanceEntity>,
+        @InjectRepository(AttendanceEntity) private attendanceRepository: Repository<AttendanceEntity>
     ) {}
 
+    //(DONE) cuando se una a un curso, chequear las asistencias ya registradas y meterlo ahi con attended false
     async create(user_id: number, courseCode: string): Promise<{
         message: string, 
         created: boolean, 
@@ -36,7 +41,7 @@ export class UserCourseService {
                 vacanciesLeft: course.vacancies-count
             };
         }
-        if((course.vacancies) <= count){
+        if( course.vacancies <= count ){
             return {
                 message: `El curso ${course.name} no tiene vacantes disponibles`,
                 created: false,
@@ -51,12 +56,21 @@ export class UserCourseService {
                 const userCourse = this.userCourseRepository.create();
                 userCourse.course = course;
                 userCourse.user = user;
-                await this.userCourseRepository.save(userCourse);
-                return {
-                    message: `El usuario ${user_id} fue registrado exitosamente en el curso ${course.name}`,
-                    created: true,
-                    vacanciesLeft: course.vacancies-(count+1)
-                };
+                const verification = await this.userCourseRepository.save(userCourse);
+                if(verification){
+                    this.verificarAsistenciasYAgregar(user, course.id);
+                    return {
+                        message: `El usuario ${user_id} fue registrado exitosamente en el curso ${course.name}`,
+                        created: true,
+                        vacanciesLeft: course.vacancies-(count+1)
+                    };
+                } else{
+                    return {
+                        message: `Hubo un error inesperado al registrar`,
+                        created: false,
+                        vacanciesLeft: course.vacancies-count
+                    };
+                }
             }else{
                 return{
                     message: `El usuario ${user_id} ya es profesor del curso ${course.name}`,
@@ -159,6 +173,24 @@ export class UserCourseService {
             };
         } else{
             throw new UnauthorizedException('No autorizado para esta operación');
+        }
+    }
+
+    async verificarAsistenciasYAgregar(user: UserEntity, course_id: number){
+        const asistenciasRegistradas: AttendanceEntity[] = await this.attendanceRepository
+        .createQueryBuilder('attendance')
+        .where('attendance.course_id = :courseId', {courseId: course_id})
+        .andWhere('attendance.registered = :valor', {valor: true})
+        .getMany();
+        if(asistenciasRegistradas.length > 0){
+            for(const asistencia of asistenciasRegistradas){
+                const userAttendance: UserAttendanceEntity = {
+                    user: user,
+                    attended: false,
+                    attendance: asistencia
+                };
+                await this.userAttendanceRepository.save(userAttendance);
+            }
         }
     }
 

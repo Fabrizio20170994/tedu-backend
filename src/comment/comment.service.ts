@@ -20,6 +20,7 @@ export class CommentService {
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>
     ) {}
 
+    // traer el usuario con cada comentario (DONE)
     async findPostComments(
         user_id: number, 
         course_id: number, 
@@ -34,10 +35,15 @@ export class CommentService {
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
         .getCount();
         if(course.teacher.id == user_id || userCourse > 0){
-            const post = await this.postRepository.findOneOrFail(post_id, {
+            /*const post = await this.postRepository.findOneOrFail(post_id, {
                 relations: ['comments']
             })
-            return post.comments;
+            return post.comments;*/
+            return await this.commentRepository
+            .createQueryBuilder('comment')
+            .leftJoinAndSelect('comment.user', 'user')
+            .where('comment.post_id = :postId', {postId: post_id})
+            .getMany();
         } else{
             throw new UnauthorizedException('Usuario no autorizado para esta operación');
         }
