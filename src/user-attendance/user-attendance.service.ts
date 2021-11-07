@@ -60,7 +60,7 @@ export class UserAttendanceService {
         };
     }
 
-    async editAttendance(
+    /*async editAttendance(
         user_id: number,
         course_id: number,
         attendance_id: number,
@@ -100,7 +100,48 @@ export class UserAttendanceService {
             message: `Se actualizaron ${updatedRows} alumnos en esta lista de Asistencia`,
             updated: false
         };
-    }
+    }*/
     
+    async editAttendance(
+        user_id: number,
+        course_id: number,
+        attendance_id: number,
+        data: registerUserAttendanceDTO[]
+    ) {
+        const course = await this.courseRepository.findOneOrFail(course_id, {
+            relations: ['teacher']
+        });
+        if(course.teacher.id != user_id){
+            throw new UnauthorizedException('No autorizado para esta operación');
+        }
+        const asistenciaLista = await this.attendanceRepository.findOneOrFail(attendance_id);
+        if (asistenciaLista.registered == false) {
+            throw new BadRequestException({ registered: asistenciaLista.registered, attendance_date: asistenciaLista.attendance_date }, 'No se puede editar una asistencia que no ha sido "registrada"');
+        }
+        var updatedRows: number = 0;
+        for (const element of data) {
+            const editUserAttendance: editUserAttendanceDTO = {
+                attended: element.attended,
+            }
+            const user = await this.userRepository.findOneOrFail(element.student_id);
+            const userAttendance = this.userAttendanceRepository.create(editUserAttendance);
+            userAttendance.user = user;
+            userAttendance.attendance = asistenciaLista;
+            const newUserAttendance = await this.userAttendanceRepository.save(userAttendance);
+            if(newUserAttendance){
+                updatedRows += 1;
+            }
+        }
+        if (updatedRows > 0) {
+            return {
+                message: `Se actualizaron ${updatedRows} alumnos en esta lista de Asistencia`,
+                updated: true
+            };
+        }
+        return {
+            message: `Se actualizaron ${updatedRows} alumnos en esta lista de Asistencia`,
+            updated: false
+        };
+    }
 
 }

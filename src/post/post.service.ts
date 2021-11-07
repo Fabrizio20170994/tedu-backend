@@ -133,7 +133,7 @@ export class PostService {
         .where('user_course.user_id = :userId', {userId: user_id})
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
         .getCount();
-        if(post.user.id == user_id && userCourse > 0){
+        if(post.user.id == user_id){
             const updateRes: UpdateResult = await this.postRepository.update(post_id, data);
             if(updateRes.affected > 0){
                 //const studentScore = this.countPostAndCommentsPoints(user_id, course_id);
@@ -205,7 +205,7 @@ export class PostService {
         });
         const post = await this.postRepository.findOneOrFail(post_id, {
             relations: ['user']
-        })
+        });
         if(course.teacher.id == user_id || post.user.id == user_id){
             /*const deleteRes: DeleteResult = await this.postRepository
             .createQueryBuilder()

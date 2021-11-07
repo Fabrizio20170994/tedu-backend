@@ -60,7 +60,7 @@ export class CommentService {
         if(course.teacher.id == user_id || userCourse > 0){
             const user = await this.userRepository.findOneOrFail(user_id);
             const post = await this.postRepository.findOneOrFail(post_id);
-            const commentToCreate = await this.commentRepository.create(data);
+            const commentToCreate = this.commentRepository.create(data);
             commentToCreate.post = post;
             commentToCreate.user = user;
             return await this.commentRepository.save(commentToCreate);
@@ -87,7 +87,7 @@ export class CommentService {
         .where('user_course.user_id = :userId', {userId: user_id})
         .andWhere('user_course.course_id = :courseId', {courseId: course_id})
         .getCount();
-        if(comment.user.id == user_id && userCourse > 0){
+        if(comment.user.id == user_id){
             await this.postRepository.findOneOrFail(post_id)
             /*const updateRes: UpdateResult = await this.commentRepository
             .createQueryBuilder()
@@ -130,6 +130,12 @@ export class CommentService {
             const comment = await this.commentRepository.findOneOrFail(comment_id, {
                 relations: ['user']
             });
+            if(comment.user.id == course.teacher.id){
+                return {
+                    message: `El profesor del curso no puede calificar sus propios comentarios`, 
+                    updated: false
+                };
+            }
             /*const updateRes: UpdateResult = await this.commentRepository
             .createQueryBuilder()
             .update('comment')
