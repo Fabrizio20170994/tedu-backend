@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../auth/entities/user.entity';
 import { CourseEntity } from '../course/course.entity';
+import { UserCourseEntity } from '../user-course/user-course.entity';
 import { AttendanceEntity } from './attendance.entity';
 
 @Injectable()
@@ -11,7 +12,8 @@ export class AttendanceService {
     constructor(
         @InjectRepository(AttendanceEntity) private attendanceRepository: Repository<AttendanceEntity>,
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
-        @InjectRepository(CourseEntity) private courseRepository: Repository<CourseEntity>
+        @InjectRepository(CourseEntity) private courseRepository: Repository<CourseEntity>,
+        @InjectRepository(UserCourseEntity) private userCourseRepository: Repository<CourseEntity>,
     ) {}
 
     async findCourseAttendances(
@@ -21,7 +23,14 @@ export class AttendanceService {
         const course = await this.courseRepository.findOneOrFail(course_id, {
             relations: ['teacher']
         });
-        if(course.teacher.id == user_id){
+
+        const user = await this.userRepository.findOneOrFail(user_id);
+        const userCourse = await this.userCourseRepository.findOne({where: {
+            user,
+            course
+        }});
+        // Si el usuario es el profesor o un usuario del curso, mostrar la asistencia
+        if(course.teacher.id == user_id || userCourse){
             return await this.attendanceRepository
             .createQueryBuilder('attendance')
             .where('attendance.course_id = :courseId', {courseId: course_id})
@@ -39,7 +48,13 @@ export class AttendanceService {
         const course = await this.courseRepository.findOneOrFail(course_id, {
             relations: ['teacher']
         });
-        if(course.teacher.id == user_id){
+        const user = await this.userRepository.findOneOrFail(user_id);
+        const userCourse = await this.userCourseRepository.findOne({where: {
+            user,
+            course
+        }});
+        // Si el usuario es el profesor o un usuario del curso, mostrar la asistencia
+        if(course.teacher.id == user_id || userCourse){
             return await this.attendanceRepository
             .createQueryBuilder('attendance')
             .leftJoinAndSelect('attendance.userAttendances', 'userAttendances')
