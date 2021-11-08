@@ -160,7 +160,7 @@ export class CommentService {
                 .andWhere('user_course.course_id = :courseId', {courseId: course_id})
                 .execute();
                 return {
-                    message: `La calificación del comentario ${comment_id} ha sido actualizada correctamente`, 
+                    message: `La calificación del comentario ${comment_id} ha sido actualizada correctamente (${data.qualified})`, 
                     updated: true
                 };
             }
