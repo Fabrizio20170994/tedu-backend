@@ -167,6 +167,12 @@ export class PostService {
             const post = await this.postRepository.findOneOrFail(post_id, {
                 relations: ['user']
             });
+            if(post.user.id == course.teacher.id){
+                return {
+                    message: `El profesor del curso no puede calificar sus propias publicaciones`, 
+                    updated: false
+                };
+            }
             const updateRes: UpdateResult = await this.postRepository.update(post_id, data);
             if(updateRes.affected > 0){
                 const sc = await this.countPostAndCommentsPoints(post.user.id, course_id);
