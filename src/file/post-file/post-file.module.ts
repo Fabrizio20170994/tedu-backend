@@ -9,6 +9,6 @@ import { PostFileService } from './post-file.service';
 @Module({
   imports: [TypeOrmModule.forFeature([PostFileEntity, PostEntity]), AuthModule],
   providers: [PostFileService],
-  controllers: [PostFileController]
+  controllers: [PostFileController],
 })
 export class PostFileModule {}

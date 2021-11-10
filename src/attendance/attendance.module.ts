@@ -15,10 +15,10 @@ import { UserCourseEntity } from '../user-course/user-course.entity';
       CourseEntity,
       UserEntity,
       UserCourseEntity,
-    ]), 
-    AuthModule
+    ]),
+    AuthModule,
   ],
   providers: [AttendanceService],
-  controllers: [AttendanceController]
+  controllers: [AttendanceController],
 })
 export class AttendanceModule {}

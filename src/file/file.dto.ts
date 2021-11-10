@@ -1,3 +1,3 @@
 export interface FileDTO {
-    key: string;
+  key: string;
 }

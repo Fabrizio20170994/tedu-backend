@@ -9,21 +9,22 @@ import { UserCourseService } from './user-course.service';
 
 @Controller('enrollment')
 export class UserCourseController {
+  constructor(private userCourseService: UserCourseService) {}
 
-    constructor(private userCourseService: UserCourseService) {}
+  @Post()
+  @UseGuards(AuthGuard())
+  async unirseACurso(
+    @User() { id }: UserEntity,
+    @Body() data: createUserCourseDTO,
+  ): Promise<{
+    message: string;
+    created: boolean;
+    vacanciesLeft: number;
+  }> {
+    return this.userCourseService.create(id, data.code);
+  }
 
-    @Post()
-    @UseGuards(AuthGuard())
-    async unirseACurso(@User() { id } : UserEntity, @Body() data: createUserCourseDTO): 
-    Promise<{
-        message: string, 
-        created: boolean, 
-        vacanciesLeft: number;
-    }> {
-        return this.userCourseService.create(id, data.code);
-    }
-
-    /*@Put()
+  /*@Put()
     @UseGuards(AuthGuard())
     async actualizarPuntajeDeEstudiante(@User() { id } : UserEntity, @Body() data: updateUserCourseDTO):
     Promise<{
@@ -34,23 +35,28 @@ export class UserCourseController {
         return this.userCourseService.update(id, data.course_id, data.student_id)
     }*/
 
-    @Delete('leave')
-    @UseGuards(AuthGuard())
-    async salirDeCurso(@User() { id } : UserEntity, @Body() data: deleteUserCourseDTO): 
-    Promise<{ 
-        message: string, 
-        deleted: boolean;
-    }> {
-        return this.userCourseService.leaveCourse(id, data.course_id);
-    }
+  @Delete('leave')
+  @UseGuards(AuthGuard())
+  async salirDeCurso(
+    @User() { id }: UserEntity,
+    @Body() data: deleteUserCourseDTO,
+  ): Promise<{
+    message: string;
+    deleted: boolean;
+  }> {
+    return this.userCourseService.leaveCourse(id, data.course_id);
+  }
 
-    @Delete()
-    @UseGuards(AuthGuard())
-    async eliminarAlumnoDeCurso(
-        @User() { id } : UserEntity,
-        @Body() data: updateUserCourseDTO
-    ){
-        return this.userCourseService.removeStudent(id, data.student_id, data.course_id);
-    }
-
+  @Delete()
+  @UseGuards(AuthGuard())
+  async eliminarAlumnoDeCurso(
+    @User() { id }: UserEntity,
+    @Body() data: updateUserCourseDTO,
+  ) {
+    return this.userCourseService.removeStudent(
+      id,
+      data.student_id,
+      data.course_id,
+    );
+  }
 }

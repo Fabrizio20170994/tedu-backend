@@ -12,15 +12,15 @@ import { CourseEntity } from '../course/course.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      CommentEntity, 
+      CommentEntity,
       PostEntity,
       UserEntity,
       UserCourseEntity,
-      CourseEntity
-    ]), 
-    AuthModule
+      CourseEntity,
+    ]),
+    AuthModule,
   ],
   providers: [CommentService],
-  controllers: [CommentController]
+  controllers: [CommentController],
 })
 export class CommentModule {}

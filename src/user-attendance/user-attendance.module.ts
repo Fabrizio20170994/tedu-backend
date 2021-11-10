@@ -14,11 +14,11 @@ import { UserEntity } from '../auth/entities/user.entity';
       UserAttendanceEntity,
       AttendanceEntity,
       CourseEntity,
-      UserEntity
+      UserEntity,
     ]),
-    AuthModule
+    AuthModule,
   ],
   providers: [UserAttendanceService],
-  controllers: [UserAttendanceController]
+  controllers: [UserAttendanceController],
 })
 export class UserAttendanceModule {}

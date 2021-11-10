@@ -7,28 +7,28 @@ import { AttendanceService } from './attendance.service';
 
 @Controller('courses/:course_id/attendances')
 export class AttendanceController {
+  constructor(private attendanceService: AttendanceService) {}
 
-    constructor(
-        private attendanceService: AttendanceService
-    ) {}
+  @Get()
+  @UseGuards(AuthGuard())
+  async obtenerAsistenciasDeCurso(
+    @User() { id }: UserEntity,
+    @Param('course_id') course_id: number,
+  ): Promise<AttendanceEntity[]> {
+    return this.attendanceService.findCourseAttendances(id, course_id);
+  }
 
-    @Get()
-    @UseGuards(AuthGuard())
-    async obtenerAsistenciasDeCurso(
-        @User() { id } : UserEntity,
-        @Param('course_id') course_id: number,
-    ): Promise<AttendanceEntity[]> {
-        return this.attendanceService.findCourseAttendances(id, course_id);
-    }
-
-    @Get(':id')
-    @UseGuards(AuthGuard())
-    async obtenerAsistenciaDeCursoPorId(
-        @User() { id } : UserEntity,
-        @Param('course_id') course_id: number,
-        @Param('id') attendance_id: number
-    ): Promise<AttendanceEntity> {
-        return this.attendanceService.findCourseAttendanceById(id, course_id, attendance_id);
-    }
-
+  @Get(':id')
+  @UseGuards(AuthGuard())
+  async obtenerAsistenciaDeCursoPorId(
+    @User() { id }: UserEntity,
+    @Param('course_id') course_id: number,
+    @Param('id') attendance_id: number,
+  ): Promise<AttendanceEntity> {
+    return this.attendanceService.findCourseAttendanceById(
+      id,
+      course_id,
+      attendance_id,
+    );
+  }
 }

@@ -1,4 +1,12 @@
-import { Column, Entity, Generated, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Generated,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { AttendanceEntity } from '../attendance/attendance.entity';
 import { UserEntity } from '../auth/entities/user.entity';
 import { AbstractEntity } from '../commons/abstract-entity';
@@ -7,37 +15,38 @@ import { UserCourseEntity } from '../user-course/user-course.entity';
 
 @Entity('course')
 export class CourseEntity extends AbstractEntity {
+  @Column()
+  @Generated('uuid')
+  code: string;
 
-    @Column()
-    @Generated("uuid")
-    code: string;
+  @Column('int', { default: 0 })
+  vacancies: number;
 
-    @Column('int', {default: 0}) 
-    vacancies: number;
+  @Column('varchar', { length: 180 })
+  name: string;
 
-    @Column('varchar', { length: 180 })
-    name: string;
+  @Column('varchar', { length: 200, nullable: true })
+  desc: string;
 
-    @Column('varchar', { length: 200, nullable: true })
-    desc: string;
+  @Column('timestamp without time zone' /*, {default: Date.now()}*/)
+  start_date: Date;
 
-    @Column('timestamp without time zone'/*, {default: Date.now()}*/)
-    start_date: Date;
+  @Column('timestamp without time zone')
+  end_date: Date;
 
-    @Column('timestamp without time zone')
-    end_date: Date;
+  @ManyToOne(() => UserEntity, (user) => user.courses, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
+  @JoinColumn({ name: 'teacher_id' })
+  teacher: UserEntity;
 
-    @ManyToOne(() => UserEntity, user => user.courses, {onDelete: 'CASCADE', nullable: false})
-    @JoinColumn({name: 'teacher_id'})
-    teacher: UserEntity;
+  @OneToMany(() => PostEntity, (post) => post.course, { nullable: true })
+  posts: PostEntity[];
 
-    @OneToMany(() => PostEntity, post => post.course, {nullable: true})
-    posts: PostEntity[];
+  @OneToMany(() => UserCourseEntity, (userCourse) => userCourse.course)
+  userCourses: UserCourseEntity[];
 
-    @OneToMany(() => UserCourseEntity, userCourse => userCourse.course)
-    userCourses: UserCourseEntity[];
-
-    @OneToMany(() => AttendanceEntity, attendance => attendance.course)
-    attendances: AttendanceEntity[];
-
+  @OneToMany(() => AttendanceEntity, (attendance) => attendance.course)
+  attendances: AttendanceEntity[];
 }

@@ -1,5 +1,3 @@
-export interface editUserAttendanceDTO{
-
-    attended: boolean;
-
+export interface editUserAttendanceDTO {
+  attended: boolean;
 }

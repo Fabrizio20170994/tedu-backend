@@ -12,14 +12,15 @@ import { UserCourseService } from './user-course.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      UserCourseEntity, 
-      CourseEntity, 
+      UserCourseEntity,
+      CourseEntity,
       UserEntity,
       UserAttendanceEntity,
-      AttendanceEntity
-    ]), 
-    AuthModule],
+      AttendanceEntity,
+    ]),
+    AuthModule,
+  ],
   controllers: [UserCourseController],
-  providers: [UserCourseService]
+  providers: [UserCourseService],
 })
 export class UserCourseModule {}

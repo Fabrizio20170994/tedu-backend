@@ -7,16 +7,15 @@ import { PostFileService } from './post-file.service';
 
 @Controller('courses/:course_id/posts/:post_id/files')
 export class PostFileController {
-    constructor (
-        private fileService: PostFileService,
-    ) {}
+  constructor(private fileService: PostFileService) {}
 
-    @Post()
-    @UseGuards(AuthGuard())
-    async saveCommentFiles(
-        @User() { id } : UserEntity,
-        @Param('postId') postId : number,
-        @Body() data: Partial<FileDTO>,
-        ) {
-        return this.fileService.postFile(id, data, postId) }
+  @Post()
+  @UseGuards(AuthGuard())
+  async saveCommentFiles(
+    @User() { id }: UserEntity,
+    @Param('postId') postId: number,
+    @Body() data: Partial<FileDTO>,
+  ) {
+    return this.fileService.postFile(id, data, postId);
+  }
 }

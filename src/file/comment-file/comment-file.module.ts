@@ -7,8 +7,11 @@ import { CommentFileEntity } from './comment-file.entity';
 import { CommentFileService } from './comment-file.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CommentFileEntity, CommentEntity]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([CommentFileEntity, CommentEntity]),
+    AuthModule,
+  ],
   providers: [CommentFileService],
-  controllers: [CommentFileController]
+  controllers: [CommentFileController],
 })
 export class CommentFileModule {}

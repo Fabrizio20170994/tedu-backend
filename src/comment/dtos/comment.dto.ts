@@ -1,6 +1,4 @@
-export interface commentDTO{
-
-    text: string
-    file: string;
-
+export interface commentDTO {
+  text: string;
+  file: string;
 }

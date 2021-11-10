@@ -1,5 +1,3 @@
-export interface postQualifiedDTO{
-
-    qualified: boolean;
-
+export interface postQualifiedDTO {
+  qualified: boolean;
 }

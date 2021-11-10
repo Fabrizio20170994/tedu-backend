@@ -1,5 +1,3 @@
-export interface commentQualifiedDTO{
-
-    qualified: boolean;
-
+export interface commentQualifiedDTO {
+  qualified: boolean;
 }

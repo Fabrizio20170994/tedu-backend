@@ -7,16 +7,15 @@ import { MessageFileService } from './message-file.service';
 
 @Controller('messages/:messageId/files')
 export class MessageFileController {
-    constructor (
-        private fileService: MessageFileService,
-    ) {}
+  constructor(private fileService: MessageFileService) {}
 
-    @Post()
-    @UseGuards(AuthGuard())
-    async saveCommentFiles(
-        @User() { id } : UserEntity,
-        @Param('messageId') postId : number,
-        @Body() data: Partial<FileDTO>,
-        ) {
-        return this.fileService.messageFile(id, data, postId) }
+  @Post()
+  @UseGuards(AuthGuard())
+  async saveCommentFiles(
+    @User() { id }: UserEntity,
+    @Param('messageId') postId: number,
+    @Body() data: Partial<FileDTO>,
+  ) {
+    return this.fileService.messageFile(id, data, postId);
+  }
 }

@@ -7,16 +7,15 @@ import { CommentFileService } from './comment-file.service';
 
 @Controller('courses/:course_id/posts/:post_id/comments/:commentId/files')
 export class CommentFileController {
-    constructor(
-        private fileService: CommentFileService
-    ) {}
+  constructor(private fileService: CommentFileService) {}
 
-    @Post()
-    @UseGuards(AuthGuard())
-    async saveCommentFiles(
-        @User() { id } : UserEntity,
-        @Param('commentId') commentId : number,
-        @Body() data: Partial<FileDTO>,
-        ) {
-        return this.fileService.commentFile(id, data, commentId) }
+  @Post()
+  @UseGuards(AuthGuard())
+  async saveCommentFiles(
+    @User() { id }: UserEntity,
+    @Param('commentId') commentId: number,
+    @Body() data: Partial<FileDTO>,
+  ) {
+    return this.fileService.commentFile(id, data, commentId);
+  }
 }

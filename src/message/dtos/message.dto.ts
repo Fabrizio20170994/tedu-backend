@@ -1,4 +1,4 @@
 export interface MessageDTO {
-    text: string;
-    userId: number;
+  text: string;
+  userId: number;
 }

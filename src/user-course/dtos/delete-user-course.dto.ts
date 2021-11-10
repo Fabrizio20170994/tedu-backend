@@ -1,5 +1,3 @@
-export interface deleteUserCourseDTO{
-
-    course_id: number
-
+export interface deleteUserCourseDTO {
+  course_id: number;
 }

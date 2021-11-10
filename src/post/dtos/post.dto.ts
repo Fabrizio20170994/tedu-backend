@@ -1,6 +1,4 @@
-export interface postDTO{
-
-    text: string;
-    file: string;
-
+export interface postDTO {
+  text: string;
+  file: string;
 }

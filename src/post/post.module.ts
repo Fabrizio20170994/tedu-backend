@@ -12,15 +12,15 @@ import { PostService } from './post.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      PostEntity, 
-      CourseEntity, 
-      UserEntity, 
+      PostEntity,
+      CourseEntity,
+      UserEntity,
       UserCourseEntity,
-      CommentEntity
-    ]), 
-    AuthModule
+      CommentEntity,
+    ]),
+    AuthModule,
   ],
   controllers: [PostController],
-  providers: [PostService]
+  providers: [PostService],
 })
 export class PostModule {}

@@ -21,13 +21,25 @@ import { MessageFileModule } from './file/message-file/message-file.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({useClass: DatabaseConnectionService}), 
-    CourseModule, PostModule, AuthModule, UserModule, UserCourseModule, CommentModule, CommentFileModule, AttendanceModule, UserAttendanceModule, PostFileModule, MessageModule, MessageFileModule,],
+    TypeOrmModule.forRootAsync({ useClass: DatabaseConnectionService }),
+    CourseModule,
+    PostModule,
+    AuthModule,
+    UserModule,
+    UserCourseModule,
+    CommentModule,
+    CommentFileModule,
+    AttendanceModule,
+    UserAttendanceModule,
+    PostFileModule,
+    MessageModule,
+    MessageFileModule,
+  ],
   controllers: [AppController],
   providers: [
-    AppService, 
-    {provide: APP_FILTER, useClass: EntityNotFoundErrorFilter},
-    {provide: APP_FILTER, useClass: QueryFailedErrorFilter},
+    AppService,
+    { provide: APP_FILTER, useClass: EntityNotFoundErrorFilter },
+    { provide: APP_FILTER, useClass: QueryFailedErrorFilter },
   ],
 })
 export class AppModule {}

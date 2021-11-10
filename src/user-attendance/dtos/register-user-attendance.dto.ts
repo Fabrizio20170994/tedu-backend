@@ -1,11 +1,9 @@
-import { IsBoolean, IsNumber } from "class-validator";
+import { IsBoolean, IsNumber } from 'class-validator';
 
-export class registerUserAttendanceDTO{
+export class registerUserAttendanceDTO {
+  @IsNumber()
+  student_id: number;
 
-    @IsNumber()
-    student_id: number;
-
-    @IsBoolean()
-    attended: boolean;
-
+  @IsBoolean()
+  attended: boolean;
 }

@@ -9,79 +9,90 @@ import { UserCourseEntity } from './user-course.entity';
 
 @Injectable()
 export class UserCourseService {
+  constructor(
+    @InjectRepository(UserCourseEntity)
+    private userCourseRepository: Repository<UserCourseEntity>,
+    @InjectRepository(CourseEntity)
+    private courseRepository: Repository<CourseEntity>,
+    @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
+    @InjectRepository(UserAttendanceEntity)
+    private userAttendanceRepository: Repository<UserAttendanceEntity>,
+    @InjectRepository(AttendanceEntity)
+    private attendanceRepository: Repository<AttendanceEntity>,
+  ) {}
 
-    constructor(
-        @InjectRepository(UserCourseEntity) private userCourseRepository: Repository<UserCourseEntity>,
-        @InjectRepository(CourseEntity) private courseRepository: Repository<CourseEntity>,
-        @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
-        @InjectRepository(UserAttendanceEntity) private userAttendanceRepository: Repository<UserAttendanceEntity>,
-        @InjectRepository(AttendanceEntity) private attendanceRepository: Repository<AttendanceEntity>
-    ) {}
-
-    //(DONE) cuando se una a un curso, chequear las asistencias ya registradas y meterlo ahi con attended false
-    async create(user_id: number, courseCode: string): Promise<{
-        message: string, 
-        created: boolean, 
-        vacanciesLeft: number;
-    }> {
-        const course = await this.courseRepository.findOneOrFail({where: {code: courseCode}});
-        const count = await this.userCourseRepository
-        .createQueryBuilder('user_course')
-        .where('user_course.course_id = :courseId', {courseId: course.id})
-        .getCount();
-        const existence = await this.userCourseRepository
-        .createQueryBuilder('user_course')
-        .where('user_course.user_id = :userId', {userId: user_id})
-        .andWhere('user_course.course_id = :courseId', {courseId: course.id})
-        .getCount();
-        if(existence == 1){
-            return {
-                message: `El usuario ${user_id} ya está registrado en el curso ${course.name}`,
-                created: false,
-                vacanciesLeft: course.vacancies-count
-            };
-        }
-        if( course.vacancies <= count ){
-            return {
-                message: `El curso ${course.name} no tiene vacantes disponibles`,
-                created: false,
-                vacanciesLeft: course.vacancies-count
-            };
-        }else{
-            const courseWithRelation = await this.courseRepository.findOneOrFail(course.id, {
-                relations: ['teacher']
-            });
-            const user = await this.userRepo.findOneOrFail(user_id);
-            if(courseWithRelation.teacher.id != user.id){
-                const userCourse = this.userCourseRepository.create();
-                userCourse.course = course;
-                userCourse.user = user;
-                const verification = await this.userCourseRepository.save(userCourse);
-                if(verification){
-                    this.verificarAsistenciasYAgregar(user, course.id);
-                    return {
-                        message: `El usuario ${user_id} fue registrado exitosamente en el curso ${course.name}`,
-                        created: true,
-                        vacanciesLeft: course.vacancies-(count+1)
-                    };
-                } else{
-                    return {
-                        message: `Hubo un error inesperado al registrar`,
-                        created: false,
-                        vacanciesLeft: course.vacancies-count
-                    };
-                }
-            }else{
-                return{
-                    message: `El usuario ${user_id} ya es profesor del curso ${course.name}`,
-                    created: false,
-                    vacanciesLeft: course.vacancies-count
-                };
-            }
-        }
+  //(DONE) cuando se una a un curso, chequear las asistencias ya registradas y meterlo ahi con attended false
+  async create(
+    user_id: number,
+    courseCode: string,
+  ): Promise<{
+    message: string;
+    created: boolean;
+    vacanciesLeft: number;
+  }> {
+    const course = await this.courseRepository.findOneOrFail({
+      where: { code: courseCode },
+    });
+    const count = await this.userCourseRepository
+      .createQueryBuilder('user_course')
+      .where('user_course.course_id = :courseId', { courseId: course.id })
+      .getCount();
+    const existence = await this.userCourseRepository
+      .createQueryBuilder('user_course')
+      .where('user_course.user_id = :userId', { userId: user_id })
+      .andWhere('user_course.course_id = :courseId', { courseId: course.id })
+      .getCount();
+    if (existence == 1) {
+      return {
+        message: `El usuario ${user_id} ya está registrado en el curso ${course.name}`,
+        created: false,
+        vacanciesLeft: course.vacancies - count,
+      };
     }
+    if (course.vacancies <= count) {
+      return {
+        message: `El curso ${course.name} no tiene vacantes disponibles`,
+        created: false,
+        vacanciesLeft: course.vacancies - count,
+      };
+    } else {
+      const courseWithRelation = await this.courseRepository.findOneOrFail(
+        course.id,
+        {
+          relations: ['teacher'],
+        },
+      );
+      const user = await this.userRepo.findOneOrFail(user_id);
+      if (courseWithRelation.teacher.id != user.id) {
+        const userCourse = this.userCourseRepository.create();
+        userCourse.course = course;
+        userCourse.user = user;
+        const verification = await this.userCourseRepository.save(userCourse);
+        if (verification) {
+          this.verificarAsistenciasYAgregar(user, course.id);
+          return {
+            message: `El usuario ${user_id} fue registrado exitosamente en el curso ${course.name}`,
+            created: true,
+            vacanciesLeft: course.vacancies - (count + 1),
+          };
+        } else {
+          return {
+            message: `Hubo un error inesperado al registrar`,
+            created: false,
+            vacanciesLeft: course.vacancies - count,
+          };
+        }
+      } else {
+        return {
+          message: `El usuario ${user_id} ya es profesor del curso ${course.name}`,
+          created: false,
+          vacanciesLeft: course.vacancies - count,
+        };
+      }
+    }
+  }
 
-    /*async update(teacher_id: number, course_id: number, student_id: number): Promise<{
+  /*async update(teacher_id: number, course_id: number, student_id: number): Promise<{
         message: string, 
         updated: boolean,
         currentStudentScore: number;
@@ -119,79 +130,82 @@ export class UserCourseService {
         };
     }*/
 
-    async leaveCourse(user_id: number, course_id: number): Promise<{ 
-        message: string, 
-        deleted: boolean; 
-    }> {
-        const deleteRes: DeleteResult = await this.userCourseRepository
+  async leaveCourse(
+    user_id: number,
+    course_id: number,
+  ): Promise<{
+    message: string;
+    deleted: boolean;
+  }> {
+    const deleteRes: DeleteResult = await this.userCourseRepository
+      .createQueryBuilder()
+      .delete()
+      .from('user_course')
+      .where('user_course.user_id = :userId', { userId: user_id })
+      .andWhere('user_course.course_id = :courseId', { courseId: course_id })
+      .execute();
+    if (deleteRes.affected > 0) {
+      return {
+        message: `Usuario ${user_id} salió del curso ${course_id} satisfactoriamente`,
+        deleted: true,
+      };
+    }
+    return {
+      message: `El usuario ${user_id} no pudo salir del curso ${course_id}`,
+      deleted: false,
+    };
+  }
+
+  async removeStudent(
+    user_id: number,
+    student_id: number,
+    course_id: number,
+  ): Promise<{
+    message: string;
+    deleted: boolean;
+  }> {
+    const course = await this.courseRepository.findOneOrFail(course_id, {
+      relations: ['teacher'],
+    });
+    if (course.teacher.id == user_id) {
+      const deleteRes: DeleteResult = await this.userCourseRepository
         .createQueryBuilder()
         .delete()
         .from('user_course')
-        .where('user_course.user_id = :userId', {userId: user_id})
-        .andWhere('user_course.course_id = :courseId', {courseId: course_id})
+        .where('user_course.user_id = :userId', { userId: student_id })
+        .andWhere('user_course.course_id = :courseId', { courseId: course_id })
         .execute();
-        if(deleteRes.affected > 0){
-            return { 
-                message: `Usuario ${user_id} salió del curso ${course_id} satisfactoriamente`,
-                deleted: true 
-            };
-        }
-        return { 
-            message: `El usuario ${user_id} no pudo salir del curso ${course_id}`,
-            deleted: false 
+      if (deleteRes.affected > 0) {
+        return {
+          message: `Estudiante ${student_id} fue eliminado del curso ${course_id} satisfactoriamente`,
+          deleted: true,
         };
+      }
+      return {
+        message: `No se pudo eliminar el estudiante ${student_id} del curso ${course_id}`,
+        deleted: false,
+      };
+    } else {
+      throw new UnauthorizedException('No autorizado para esta operación');
     }
+  }
 
-    async removeStudent(
-        user_id: number, 
-        student_id: number, 
-        course_id: number
-    ): Promise<{
-        message: string, 
-        deleted: boolean;
-    }> {
-        const course = await this.courseRepository.findOneOrFail(course_id, {
-            relations: ['teacher']
-        });
-        if(course.teacher.id == user_id){
-            const deleteRes: DeleteResult = await this.userCourseRepository
-            .createQueryBuilder()
-            .delete()
-            .from('user_course')
-            .where('user_course.user_id = :userId', {userId: student_id})
-            .andWhere('user_course.course_id = :courseId', {courseId: course_id})
-            .execute();
-            if(deleteRes.affected > 0){
-                return { 
-                    message: `Estudiante ${student_id} fue eliminado del curso ${course_id} satisfactoriamente`,
-                    deleted: true 
-                };
-            }
-            return { 
-                message: `No se pudo eliminar el estudiante ${student_id} del curso ${course_id}`,
-                deleted: false 
-            };
-        } else{
-            throw new UnauthorizedException('No autorizado para esta operación');
-        }
-    }
-
-    async verificarAsistenciasYAgregar(user: UserEntity, course_id: number){
-        const asistenciasRegistradas: AttendanceEntity[] = await this.attendanceRepository
+  async verificarAsistenciasYAgregar(user: UserEntity, course_id: number) {
+    const asistenciasRegistradas: AttendanceEntity[] =
+      await this.attendanceRepository
         .createQueryBuilder('attendance')
-        .where('attendance.course_id = :courseId', {courseId: course_id})
-        .andWhere('attendance.registered = :valor', {valor: true})
+        .where('attendance.course_id = :courseId', { courseId: course_id })
+        .andWhere('attendance.registered = :valor', { valor: true })
         .getMany();
-        if(asistenciasRegistradas.length > 0){
-            for(const asistencia of asistenciasRegistradas){
-                const userAttendance: UserAttendanceEntity = {
-                    user: user,
-                    attended: false,
-                    attendance: asistencia
-                };
-                await this.userAttendanceRepository.save(userAttendance);
-            }
-        }
+    if (asistenciasRegistradas.length > 0) {
+      for (const asistencia of asistenciasRegistradas) {
+        const userAttendance: UserAttendanceEntity = {
+          user: user,
+          attended: false,
+          attendance: asistencia,
+        };
+        await this.userAttendanceRepository.save(userAttendance);
+      }
     }
-
+  }
 }

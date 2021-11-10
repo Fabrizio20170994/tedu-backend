@@ -7,8 +7,11 @@ import { MessageFileEntity } from './message-file.entity';
 import { MessageFileService } from './message-file.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([MessageFileEntity, MessageEntity]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([MessageFileEntity, MessageEntity]),
+    AuthModule,
+  ],
   providers: [MessageFileService],
-  controllers: [MessageFileController]
+  controllers: [MessageFileController],
 })
 export class MessageFileModule {}
