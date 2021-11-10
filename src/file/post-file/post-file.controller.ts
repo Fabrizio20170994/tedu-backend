@@ -13,7 +13,8 @@ export class PostFileController {
   @UseGuards(AuthGuard())
   async saveCommentFiles(
     @User() { id }: UserEntity,
-    @Param('postId') postId: number,
+    @Param('course_id') courseId: number,
+    @Param('post_id') postId: number,
     @Body() data: Partial<FileDTO>,
   ) {
     return this.fileService.postFile(id, data, postId);

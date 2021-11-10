@@ -13,6 +13,8 @@ export class CommentFileController {
   @UseGuards(AuthGuard())
   async saveCommentFiles(
     @User() { id }: UserEntity,
+    @Param('course_Id') courseId: number,
+    @Param('post_Id') postId: number,
     @Param('commentId') commentId: number,
     @Body() data: Partial<FileDTO>,
   ) {
