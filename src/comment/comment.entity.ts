@@ -9,6 +9,7 @@ import {
 import { UserEntity } from '../auth/entities/user.entity';
 import { AbstractEntity } from '../commons/abstract-entity';
 import { CommentFileEntity } from '../file/comment-file/comment-file.entity';
+import { NotificationEntity } from '../notification/notification.entity';
 import { PostEntity } from '../post/post.entity';
 
 @Entity('comment')
@@ -35,4 +36,7 @@ export class CommentEntity extends AbstractEntity {
 
   @OneToMany(() => CommentFileEntity, (file) => file.comment)
   files: CommentFileEntity[];
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.comment)
+  notifications: NotificationEntity[];
 }

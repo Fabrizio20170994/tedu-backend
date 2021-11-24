@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { UserEntity } from '../auth/entities/user.entity';
 import { AbstractEntity } from '../commons/abstract-entity';
 import { MessageFileEntity } from '../file/message-file/message-file.entity';
+import { NotificationEntity } from '../notification/notification.entity';
 
 @Entity('message')
 export class MessageEntity extends AbstractEntity {
@@ -24,4 +25,7 @@ export class MessageEntity extends AbstractEntity {
 
   @OneToMany(() => MessageFileEntity, (file) => file.message)
   files: MessageFileEntity[];
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.message)
+  notifications: NotificationEntity[];
 }

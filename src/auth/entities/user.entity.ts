@@ -8,6 +8,7 @@ import { PostEntity } from '../../post/post.entity';
 import { CommentEntity } from '../../comment/comment.entity';
 import { UserAttendanceEntity } from '../../user-attendance/user-attendance.entity';
 import { MessageEntity } from '../../message/message.entity';
+import { NotificationEntity } from '../../notification/notification.entity';
 
 @Entity('user')
 export class UserEntity extends AbstractEntity {
@@ -50,6 +51,9 @@ export class UserEntity extends AbstractEntity {
 
   @OneToMany(() => MessageEntity, (message) => message.receiver)
   sentMessages: MessageEntity[];
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  notifications: NotificationEntity[];
 
   @BeforeInsert()
   async hashPassword() {

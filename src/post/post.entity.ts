@@ -4,6 +4,7 @@ import { AbstractEntity } from '../commons/abstract-entity';
 import { UserEntity } from '../auth/entities/user.entity';
 import { CommentEntity } from '../comment/comment.entity';
 import { PostFileEntity } from '../file/post-file/post-file.entity';
+import { NotificationEntity } from '../notification/notification.entity';
 
 @Entity('post')
 export class PostEntity extends AbstractEntity {
@@ -32,4 +33,7 @@ export class PostEntity extends AbstractEntity {
 
   @OneToMany(() => CommentEntity, (comment) => comment.post)
   comments: CommentEntity[];
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.post)
+  notifications: NotificationEntity[];
 }
