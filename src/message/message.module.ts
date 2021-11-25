@@ -5,9 +5,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MessageEntity } from './message.entity';
 import { UserEntity } from '../auth/entities/user.entity';
 import { AuthModule } from '../auth/auth.module';
+import { NotificationEntity } from '../notification/notification.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([MessageEntity, UserEntity]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([MessageEntity, UserEntity, NotificationEntity]),
+    AuthModule,
+  ],
   providers: [MessageService],
   controllers: [MessageController],
 })

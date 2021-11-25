@@ -14,10 +14,12 @@ export class NotificationService {
   ) {}
 
   async getUnseen(userId: number): Promise<NotificationEntity[]> {
-    const user = this.userRepository.findOne(userId);
+    const user = await this.userRepository.findOne(userId);
 
     return await this.notificationRepository.find({
       where: { user, seen: false },
+      relations: ['message', 'post', 'comment'],
+      order: { created: 'DESC' },
     });
   }
 }

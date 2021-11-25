@@ -4,6 +4,7 @@ import { AuthModule } from '../auth/auth.module';
 import { UserEntity } from '../auth/entities/user.entity';
 import { CommentEntity } from '../comment/comment.entity';
 import { CourseEntity } from '../course/course.entity';
+import { NotificationEntity } from '../notification/notification.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
 import { PostController } from './post.controller';
 import { PostEntity } from './post.entity';
@@ -17,6 +18,7 @@ import { PostService } from './post.service';
       UserEntity,
       UserCourseEntity,
       CommentEntity,
+      NotificationEntity,
     ]),
     AuthModule,
   ],

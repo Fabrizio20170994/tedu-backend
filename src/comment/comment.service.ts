@@ -8,6 +8,10 @@ import { UserCourseEntity } from '../user-course/user-course.entity';
 import { commentDTO } from './dtos/comment.dto';
 import { CommentEntity } from './comment.entity';
 import { commentQualifiedDTO } from './dtos/commentQualified.dto';
+import {
+  NotificationEntity,
+  NOTIFICATION_TYPE,
+} from '../notification/notification.entity';
 
 @Injectable()
 export class CommentService {
@@ -22,6 +26,8 @@ export class CommentService {
     private postRepository: Repository<PostEntity>,
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    @InjectRepository(NotificationEntity)
+    private notificationRepository: Repository<NotificationEntity>,
   ) {}
 
   // traer el usuario con cada comentario (DONE)
@@ -71,11 +77,24 @@ export class CommentService {
       .getCount();
     if (course.teacher.id == user_id || userCourse > 0) {
       const user = await this.userRepository.findOneOrFail(user_id);
-      const post = await this.postRepository.findOneOrFail(post_id);
+      const post = await this.postRepository.findOneOrFail(post_id, {
+        relations: ['user'],
+      });
       const commentToCreate = this.commentRepository.create(data);
       commentToCreate.post = post;
       commentToCreate.user = user;
-      return await this.commentRepository.save(commentToCreate);
+      const comment = await this.commentRepository.save(commentToCreate);
+      // Crear notificación
+      if (post.user.id !== user.id) {
+        await this.notificationRepository.save({
+          post,
+          user: post.user,
+          text: `El usuario ${user.name} comentó tu publicación`,
+          type: NOTIFICATION_TYPE.POST,
+        });
+      }
+
+      return comment;
     } else {
       throw new UnauthorizedException(
         'Usuario no autorizado para esta operación',
@@ -180,6 +199,13 @@ export class CommentService {
             courseId: course_id,
           })
           .execute();
+        // Crear Notificación
+        await this.notificationRepository.save({
+          comment,
+          user: comment.user,
+          text: `Tu comentario ha sido calificado`,
+          type: NOTIFICATION_TYPE.COMMENT,
+        });
         return {
           message: `La calificación del comentario ${comment_id} ha sido actualizada correctamente (${data.qualified})`,
           updated: true,

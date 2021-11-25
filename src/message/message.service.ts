@@ -6,6 +6,10 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChangeStream, Repository } from 'typeorm';
 import { UserEntity } from '../auth/entities/user.entity';
+import {
+  NotificationEntity,
+  NOTIFICATION_TYPE,
+} from '../notification/notification.entity';
 import { MessageDTO } from './dtos/message.dto';
 import { MessageEntity } from './message.entity';
 
@@ -16,6 +20,8 @@ export class MessageService {
     private messageRepository: Repository<MessageEntity>,
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    @InjectRepository(NotificationEntity)
+    private notificationRepository: Repository<NotificationEntity>,
   ) {}
 
   async send(userId: number, data: Partial<MessageDTO>) {
@@ -27,11 +33,20 @@ export class MessageService {
 
     const text = data.text;
 
-    return await this.messageRepository.save({
+    const message = await this.messageRepository.save({
       text,
       sender,
       receiver,
     });
+
+    await this.notificationRepository.save({
+      message,
+      user: receiver,
+      text: `Has recibido un mensaje de ${sender.name}`,
+      type: NOTIFICATION_TYPE.MESSAGE,
+    });
+
+    return message;
   }
 
   async getAllMessages(loggedUser: number, messagedUser: number) {

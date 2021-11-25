@@ -8,6 +8,10 @@ import { UserEntity } from '../auth/entities/user.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
 import { CommentEntity } from '../comment/comment.entity';
 import { postQualifiedDTO } from './dtos/postQualified.dto';
+import {
+  NotificationEntity,
+  NOTIFICATION_TYPE,
+} from '../notification/notification.entity';
 
 @Injectable()
 export class PostService {
@@ -22,6 +26,8 @@ export class PostService {
     private userCourseRepository: Repository<UserCourseEntity>,
     @InjectRepository(CommentEntity)
     private commentRepository: Repository<CommentEntity>,
+    @InjectRepository(NotificationEntity)
+    private notificationRepository: Repository<NotificationEntity>,
   ) {}
 
   /*async seed(){
@@ -213,6 +219,13 @@ export class PostService {
             courseId: course_id,
           })
           .execute();
+        // Crear Notificación
+        await this.notificationRepository.save({
+          post,
+          user: post.user,
+          text: `Tu publicación ha sido calificada`,
+          type: NOTIFICATION_TYPE.COMMENT,
+        });
         return {
           message: `La calificación del post ${post_id} ha sido actualizada correctamente (${data.qualified})`,
           updated: true,

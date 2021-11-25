@@ -8,6 +8,7 @@ import { PostEntity } from '../post/post.entity';
 import { UserEntity } from '../auth/entities/user.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
 import { CourseEntity } from '../course/course.entity';
+import { NotificationEntity } from '../notification/notification.entity';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CourseEntity } from '../course/course.entity';
       UserEntity,
       UserCourseEntity,
       CourseEntity,
+      NotificationEntity,
     ]),
     AuthModule,
   ],
