@@ -19,6 +19,7 @@ import { MessageModule } from './message/message.module';
 import { PostFileModule } from './file/post-file/post-file.module';
 import { MessageFileModule } from './file/message-file/message-file.module';
 import { NotificationModule } from './notification/notification.module';
+import { EventModule } from './event/event.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { NotificationModule } from './notification/notification.module';
     MessageModule,
     MessageFileModule,
     NotificationModule,
+    EventModule,
   ],
   controllers: [AppController],
   providers: [

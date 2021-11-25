@@ -9,6 +9,7 @@ import { CommentEntity } from '../../comment/comment.entity';
 import { UserAttendanceEntity } from '../../user-attendance/user-attendance.entity';
 import { MessageEntity } from '../../message/message.entity';
 import { NotificationEntity } from '../../notification/notification.entity';
+import { EventEntity } from '../../event/event.entity';
 
 @Entity('user')
 export class UserEntity extends AbstractEntity {
@@ -54,6 +55,9 @@ export class UserEntity extends AbstractEntity {
 
   @OneToMany(() => NotificationEntity, (notification) => notification.user)
   notifications: NotificationEntity[];
+
+  @OneToMany(() => EventEntity, (event) => event.user)
+  events: EventEntity[];
 
   @BeforeInsert()
   async hashPassword() {
