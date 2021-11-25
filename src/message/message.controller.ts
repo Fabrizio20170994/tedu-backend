@@ -10,20 +10,20 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from '../auth/entities/user.entity';
 import { User } from '../auth/user.decorator';
-import { MessageDTO } from './dtos/message.dto';
 import { MessageService } from './message.service';
 
 @Controller('messages')
 export class MessageController {
   constructor(private messageService: MessageService) {}
 
-  @Post()
+  @Post('/:userId')
   @UseGuards(AuthGuard())
   async sendMessage(
     @User() { id }: UserEntity,
-    @Body() data: Partial<MessageDTO>,
+    @Body() text: string,
+    @Param('userId') userId: number,
   ) {
-    return this.messageService.send(id, data);
+    return this.messageService.send(id, text, userId);
   }
 
   @Get('/users')
