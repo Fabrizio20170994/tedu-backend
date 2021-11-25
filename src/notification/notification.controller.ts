@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from '../auth/entities/user.entity';
 import { User } from '../auth/user.decorator';
@@ -15,5 +15,14 @@ export class NotificationController {
     @User() { id }: UserEntity,
   ): Promise<NotificationEntity[]> {
     return this.notificationService.getUnseen(id);
+  }
+
+  @Put()
+  @UseGuards(AuthGuard())
+  async updateNotifications(@User() { id }: UserEntity): Promise<{
+    message: string;
+    updated: boolean;
+  }> {
+    return this.notificationService.updateSeen(id);
   }
 }
