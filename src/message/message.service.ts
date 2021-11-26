@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChangeStream, Repository } from 'typeorm';
 import { UserEntity } from '../auth/entities/user.entity';
+import { MessageFileEntity } from '../file/message-file/message-file.entity';
 import {
   NotificationEntity,
   NOTIFICATION_TYPE,
@@ -22,6 +23,8 @@ export class MessageService {
     private userRepository: Repository<UserEntity>,
     @InjectRepository(NotificationEntity)
     private notificationRepository: Repository<NotificationEntity>,
+    @InjectRepository(MessageFileEntity)
+    private messageFileRepository: Repository<MessageFileEntity>,
   ) {}
 
   async send(senderId: number, data: messageDTO, receiverId: number) {
@@ -37,6 +40,16 @@ export class MessageService {
       receiver,
     });
 
+    // Adjuntar Archivos
+    if (data.files) {
+      for (const file of data.files) {
+        const fileToCreate = this.messageFileRepository.create();
+        fileToCreate.message = message;
+        fileToCreate.key = file;
+        await this.messageFileRepository.save(fileToCreate);
+      }
+    }
+
     await this.notificationRepository.save({
       message,
       user: receiver,
@@ -44,7 +57,9 @@ export class MessageService {
       type: NOTIFICATION_TYPE.MESSAGE,
     });
 
-    return message;
+    return this.messageRepository.findOneOrFail(message.id, {
+      relations: ['files'],
+    });
   }
 
   async getAllMessages(loggedUser: number, messagedUser: number) {
@@ -63,14 +78,14 @@ export class MessageService {
   async getSenderMessages(sender: number, receiver: number) {
     return await this.messageRepository.find({
       where: { sender, receiver },
-      relations: ['receiver', 'sender'],
+      relations: ['receiver', 'sender', 'files'],
     });
   }
 
   async getReceiverMessages(receiver: number, sender: number) {
     return await this.messageRepository.find({
       where: { sender, receiver },
-      relations: ['receiver', 'sender'],
+      relations: ['receiver', 'sender', 'files'],
     });
   }
 
