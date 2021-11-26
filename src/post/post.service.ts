@@ -12,6 +12,7 @@ import {
   NotificationEntity,
   NOTIFICATION_TYPE,
 } from '../notification/notification.entity';
+import { PostFileEntity } from '../file/post-file/post-file.entity';
 
 @Injectable()
 export class PostService {
@@ -28,6 +29,8 @@ export class PostService {
     private commentRepository: Repository<CommentEntity>,
     @InjectRepository(NotificationEntity)
     private notificationRepository: Repository<NotificationEntity>,
+    @InjectRepository(PostFileEntity)
+    private postFileRepository: Repository<PostFileEntity>,
   ) {}
 
   /*async seed(){
@@ -101,10 +104,23 @@ export class PostService {
       .getCount();
     if (course.teacher.id == user_id || userCourse > 0) {
       const user = await this.userRepository.findOneOrFail(user_id);
-      const postToCreate = this.postRepository.create(data);
+      const postToCreate = this.postRepository.create({
+        text: data.text,
+      });
       postToCreate.course = course;
       postToCreate.user = user;
-      return await this.postRepository.save(postToCreate);
+      const post = await this.postRepository.save(postToCreate);
+      if (data.files) {
+        for (const file of data.files) {
+          const fileToCreate = this.postFileRepository.create();
+          fileToCreate.post = post;
+          fileToCreate.key = file;
+          await this.postFileRepository.save(fileToCreate);
+        }
+      }
+      return await this.postRepository.findOne(post.id, {
+        relations: ['files'],
+      });
     } else {
       throw new UnauthorizedException(
         'Usuario no autorizado para esta operación',
@@ -159,8 +175,16 @@ export class PostService {
     if (post.user.id == user_id) {
       const updateRes: UpdateResult = await this.postRepository.update(
         post_id,
-        data,
+        { text: data.text },
       );
+      if (data.files) {
+        for (const file of data.files) {
+          const fileToCreate = this.postFileRepository.create();
+          fileToCreate.post = post;
+          fileToCreate.key = file;
+          await this.postFileRepository.save(fileToCreate);
+        }
+      }
       if (updateRes.affected > 0) {
         //const studentScore = this.countPostAndCommentsPoints(user_id, course_id);
         return {
