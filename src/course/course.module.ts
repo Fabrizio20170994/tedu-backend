@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AttendanceEntity } from '../attendance/attendance.entity';
 import { AuthModule } from '../auth/auth.module';
 import { UserEntity } from '../auth/entities/user.entity';
+import { EventEntity } from '../event/event.entity';
 import { PostEntity } from '../post/post.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
 import { CourseController } from './course.controller';
@@ -17,6 +18,7 @@ import { CourseService } from './course.service';
       UserCourseEntity,
       UserEntity,
       AttendanceEntity,
+      EventEntity
     ]),
     AuthModule,
   ],

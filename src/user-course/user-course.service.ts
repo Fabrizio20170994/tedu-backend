@@ -4,6 +4,8 @@ import { DeleteResult, Repository } from 'typeorm';
 import { AttendanceEntity } from '../attendance/attendance.entity';
 import { UserEntity } from '../auth/entities/user.entity';
 import { CourseEntity } from '../course/course.entity';
+import { EventDTO } from '../event/dtos/event.dto';
+import { EventEntity } from '../event/event.entity';
 import { UserAttendanceEntity } from '../user-attendance/user-attendance.entity';
 import { UserCourseEntity } from './user-course.entity';
 
@@ -19,9 +21,10 @@ export class UserCourseService {
     private userAttendanceRepository: Repository<UserAttendanceEntity>,
     @InjectRepository(AttendanceEntity)
     private attendanceRepository: Repository<AttendanceEntity>,
+    @InjectRepository(EventEntity)
+    private eventRepository: Repository<EventEntity>,
   ) {}
 
-  //(DONE) cuando se una a un curso, chequear las asistencias ya registradas y meterlo ahi con attended false
   async create(
     user_id: number,
     courseCode: string,
@@ -70,6 +73,7 @@ export class UserCourseService {
         const verification = await this.userCourseRepository.save(userCourse);
         if (verification) {
           this.verificarAsistenciasYAgregar(user, course.id);
+          this.synchronizeCalendar(user, course);
           return {
             message: `El usuario ${user_id} fue registrado exitosamente en el curso ${course.name}`,
             created: true,
@@ -208,4 +212,29 @@ export class UserCourseService {
       }
     }
   }
+  
+  /* FUNCTIONS */
+
+  async synchronizeCalendar(
+    user: UserEntity,
+    course: CourseEntity
+  ) {
+    const curso = await this.courseRepository.findOneOrFail(course.id, {
+      relations: ['attendances']
+    });
+    const asistencias = curso.attendances;
+    if (asistencias.length > 0) {
+      for (const asistencia of asistencias) {
+        const eventDTO: EventDTO = <EventDTO>{
+          course: course,
+          start: asistencia.attendance_date,
+          end: asistencia.attendance_date_end,
+          title: course.name,
+          user: user
+        };
+        await this.eventRepository.save(eventDTO);
+      }
+    }
+  }
+
 }

@@ -9,10 +9,10 @@ export class EventEntity extends AbstractEntity {
     @Column()
     title: string;
 
-    @Column('timestamp without time zone')
+    @Column()
     start: Date;
 
-    @Column('timestamp without time zone')
+    @Column()
     end: Date;
 
     @ManyToOne(() => CourseEntity, (course) => course.events, { onDelete: 'CASCADE' })

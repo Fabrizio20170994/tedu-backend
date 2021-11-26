@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../auth/entities/user.entity';
@@ -9,6 +9,8 @@ import { newCourseDTO } from './dtos/newCourse.dto';
 import { schedule } from './dtos/schedule.dto';
 import { attendanceDTO } from '../attendance/dtos/attendance.dto';
 import { AttendanceEntity } from '../attendance/attendance.entity';
+import { EventEntity } from '../event/event.entity';
+import { EventDTO } from '../event/dtos/event.dto';
 
 @Injectable()
 export class CourseService {
@@ -237,9 +239,34 @@ export class CourseService {
 
   /*********** FUNCTIONS ************/
 
-  addDays(date: Date, days: number) {
+  addDays(date: Date, days: number): Date {
     date.setDate(date.getDate() + days);
     return date;
+  }
+
+  setHoursMinutesSeconds(date: Date, hours: number, minutes: number, seconds: number): Date {
+    date.setHours(hours, minutes, seconds);
+    return date;
+  }
+
+  /*addMinutes(date: Date, minutes: number): Date {
+    date.setMinutes(date.getMinutes() + minutes);
+    return date;
+  }*/
+  /*substractMinutes(end: string, start: string): number {
+    var value_end = end.split(':');
+    var value_start = start.split(':');
+    if(value_end[0] < value_start[0]){
+      throw new BadRequestException('La hora de fin no puede ser menor a la hora de inicio')
+    }
+    const minutesEnd = parseInt(value_end[0], 10) * 60 + parseInt(value_end[1], 10);
+    const minutesStart = parseInt(value_start[0], 10) * 60 + parseInt(value_start[1], 10);
+    return minutesEnd - minutesStart;
+  }*/
+
+  substractHoursAndMinutes(cadena: string): number[] {
+    const datos = cadena.split(':');
+    return [parseInt(datos[0], 10), parseInt(datos[1], 10)];
   }
 
   async createAttendances(
@@ -263,7 +290,11 @@ export class CourseService {
       for (var j = 0; j < 7; j++) {
         if (scheduleFlagFirst < scheduleFlagLast) {
           if (dateMark.getDay() == schedule[scheduleFlagFirst].day) {
-            attendanceDTO.attendance_date = dateMark;
+            //attendanceDTO.attendance_date = dateMark;
+            const startTimeArray = this.substractHoursAndMinutes(schedule[scheduleFlagFirst].start);
+            const endTimeArray = this.substractHoursAndMinutes(schedule[scheduleFlagFirst].end);
+            attendanceDTO.attendance_date = new Date(this.setHoursMinutesSeconds(dateMark, startTimeArray[0], startTimeArray[1], 0));
+            attendanceDTO.attendance_date_end = new Date(this.setHoursMinutesSeconds(dateMark, endTimeArray[0], endTimeArray[1], 0));
             attendanceDTO.registered = false;
             const attendanceToSave =
               this.attendanceRepository.create(attendanceDTO);
