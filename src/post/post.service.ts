@@ -80,6 +80,7 @@ export class PostService {
       return await this.postRepository
         .createQueryBuilder('post')
         .leftJoinAndSelect('post.user', 'user')
+        .leftJoinAndSelect('post.files', 'files')
         .where('post.course_id = :courseId', { courseId: course_id })
         .getMany();
     } else {
@@ -144,6 +145,7 @@ export class PostService {
     if (course.teacher.id == user_id || userCourse > 0) {
       return await this.postRepository
         .createQueryBuilder('post')
+        .leftJoinAndSelect('post.files', 'files')
         .where('post.id = :postId', { postId: post_id })
         .andWhere('post.course_id = :courseId', { courseId: course_id })
         .getOneOrFail();

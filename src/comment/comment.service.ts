@@ -55,6 +55,7 @@ export class CommentService {
       return await this.commentRepository
         .createQueryBuilder('comment')
         .leftJoinAndSelect('comment.user', 'user')
+        .leftJoinAndSelect('comment.files', 'files')
         .where('comment.post_id = :postId', { postId: post_id })
         .getMany();
     } else {
