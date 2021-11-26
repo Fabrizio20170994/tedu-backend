@@ -18,7 +18,7 @@ import { CourseService } from './course.service';
       UserCourseEntity,
       UserEntity,
       AttendanceEntity,
-      EventEntity
+      EventEntity,
     ]),
     AuthModule,
   ],

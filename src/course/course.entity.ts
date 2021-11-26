@@ -53,5 +53,4 @@ export class CourseEntity extends AbstractEntity {
 
   @OneToMany(() => EventEntity, (event) => event.course)
   events: EventEntity[];
-
 }

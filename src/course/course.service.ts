@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../auth/entities/user.entity';
@@ -244,7 +248,12 @@ export class CourseService {
     return date;
   }
 
-  setHoursMinutesSeconds(date: Date, hours: number, minutes: number, seconds: number): Date {
+  setHoursMinutesSeconds(
+    date: Date,
+    hours: number,
+    minutes: number,
+    seconds: number,
+  ): Date {
     date.setHours(hours, minutes, seconds);
     return date;
   }
@@ -291,10 +300,28 @@ export class CourseService {
         if (scheduleFlagFirst < scheduleFlagLast) {
           if (dateMark.getDay() == schedule[scheduleFlagFirst].day) {
             //attendanceDTO.attendance_date = dateMark;
-            const startTimeArray = this.substractHoursAndMinutes(schedule[scheduleFlagFirst].start);
-            const endTimeArray = this.substractHoursAndMinutes(schedule[scheduleFlagFirst].end);
-            attendanceDTO.attendance_date = new Date(this.setHoursMinutesSeconds(dateMark, startTimeArray[0], startTimeArray[1], 0));
-            attendanceDTO.attendance_date_end = new Date(this.setHoursMinutesSeconds(dateMark, endTimeArray[0], endTimeArray[1], 0));
+            const startTimeArray = this.substractHoursAndMinutes(
+              schedule[scheduleFlagFirst].start,
+            );
+            const endTimeArray = this.substractHoursAndMinutes(
+              schedule[scheduleFlagFirst].end,
+            );
+            attendanceDTO.attendance_date = new Date(
+              this.setHoursMinutesSeconds(
+                dateMark,
+                startTimeArray[0],
+                startTimeArray[1],
+                0,
+              ),
+            );
+            attendanceDTO.attendance_date_end = new Date(
+              this.setHoursMinutesSeconds(
+                dateMark,
+                endTimeArray[0],
+                endTimeArray[1],
+                0,
+              ),
+            );
             attendanceDTO.registered = false;
             const attendanceToSave =
               this.attendanceRepository.create(attendanceDTO);

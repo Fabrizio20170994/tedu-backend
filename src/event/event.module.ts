@@ -9,14 +9,10 @@ import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      EventEntity,
-      UserEntity,
-      CourseEntity
-    ]),
-    AuthModule
+    TypeOrmModule.forFeature([EventEntity, UserEntity, CourseEntity]),
+    AuthModule,
   ],
   providers: [EventService],
-  controllers: [EventController]
+  controllers: [EventController],
 })
 export class EventModule {}

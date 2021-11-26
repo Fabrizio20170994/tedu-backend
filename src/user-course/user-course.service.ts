@@ -212,15 +212,12 @@ export class UserCourseService {
       }
     }
   }
-  
+
   /* FUNCTIONS */
 
-  async synchronizeCalendar(
-    user: UserEntity,
-    course: CourseEntity
-  ) {
+  async synchronizeCalendar(user: UserEntity, course: CourseEntity) {
     const curso = await this.courseRepository.findOneOrFail(course.id, {
-      relations: ['attendances']
+      relations: ['attendances'],
     });
     const asistencias = curso.attendances;
     if (asistencias.length > 0) {
@@ -230,11 +227,10 @@ export class UserCourseService {
           start: asistencia.attendance_date,
           end: asistencia.attendance_date_end,
           title: course.name,
-          user: user
+          user: user,
         };
         await this.eventRepository.save(eventDTO);
       }
     }
   }
-
 }
