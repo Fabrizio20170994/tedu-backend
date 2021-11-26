@@ -12,6 +12,7 @@ import {
   NotificationEntity,
   NOTIFICATION_TYPE,
 } from '../notification/notification.entity';
+import { CommentFileEntity } from '../file/comment-file/comment-file.entity';
 
 @Injectable()
 export class CommentService {
@@ -28,6 +29,8 @@ export class CommentService {
     private userRepository: Repository<UserEntity>,
     @InjectRepository(NotificationEntity)
     private notificationRepository: Repository<NotificationEntity>,
+    @InjectRepository(CommentFileEntity)
+    private commentFileRepository: Repository<CommentFileEntity>,
   ) {}
 
   // traer el usuario con cada comentario (DONE)
@@ -80,10 +83,21 @@ export class CommentService {
       const post = await this.postRepository.findOneOrFail(post_id, {
         relations: ['user'],
       });
-      const commentToCreate = this.commentRepository.create(data);
+      const commentToCreate = this.commentRepository.create({
+        text: data.text,
+      });
       commentToCreate.post = post;
       commentToCreate.user = user;
       const comment = await this.commentRepository.save(commentToCreate);
+      // Adjuntar Archivos
+      if (data.files) {
+        for (const file of data.files) {
+          const fileToCreate = this.commentFileRepository.create();
+          fileToCreate.comment = comment;
+          fileToCreate.key = file;
+          await this.commentFileRepository.save(fileToCreate);
+        }
+      }
       // Crear notificación
       if (post.user.id !== user.id) {
         await this.notificationRepository.save({
@@ -93,8 +107,9 @@ export class CommentService {
           type: NOTIFICATION_TYPE.POST,
         });
       }
-
-      return comment;
+      return await this.commentRepository.findOne(comment.id, {
+        relations: ['files'],
+      });
     } else {
       throw new UnauthorizedException(
         'Usuario no autorizado para esta operación',
@@ -131,7 +146,7 @@ export class CommentService {
             .execute();*/
       const updateRes: UpdateResult = await this.commentRepository.update(
         comment_id,
-        data,
+        { text: data.text },
       );
       if (updateRes.affected > 0) {
         return {

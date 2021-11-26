@@ -9,6 +9,7 @@ import { UserEntity } from '../auth/entities/user.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
 import { CourseEntity } from '../course/course.entity';
 import { NotificationEntity } from '../notification/notification.entity';
+import { CommentFileEntity } from '../file/comment-file/comment-file.entity';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { NotificationEntity } from '../notification/notification.entity';
       UserCourseEntity,
       CourseEntity,
       NotificationEntity,
+      CommentFileEntity,
     ]),
     AuthModule,
   ],

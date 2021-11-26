@@ -1,4 +1,4 @@
 export interface commentDTO {
   text: string;
-  file: string;
+  files: string[];
 }
