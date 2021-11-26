@@ -52,8 +52,8 @@ export class MessageService {
       messagedUser,
     );
     const receivedMessages = await this.getReceiverMessages(
-      messagedUser,
       loggedUser,
+      messagedUser,
     );
 
     return senderMessages.concat(receivedMessages);
