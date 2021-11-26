@@ -10,6 +10,7 @@ import {
 import { AttendanceEntity } from '../attendance/attendance.entity';
 import { UserEntity } from '../auth/entities/user.entity';
 import { AbstractEntity } from '../commons/abstract-entity';
+import { EventEntity } from '../event/event.entity';
 import { PostEntity } from '../post/post.entity';
 import { UserCourseEntity } from '../user-course/user-course.entity';
 
@@ -49,4 +50,8 @@ export class CourseEntity extends AbstractEntity {
 
   @OneToMany(() => AttendanceEntity, (attendance) => attendance.course)
   attendances: AttendanceEntity[];
+
+  @OneToMany(() => EventEntity, (event) => event.course)
+  events: EventEntity[];
+
 }
