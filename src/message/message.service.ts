@@ -10,6 +10,7 @@ import {
   NotificationEntity,
   NOTIFICATION_TYPE,
 } from '../notification/notification.entity';
+import { messageDTO } from './dto/message.dto';
 import { MessageEntity } from './message.entity';
 
 @Injectable()
@@ -23,7 +24,7 @@ export class MessageService {
     private notificationRepository: Repository<NotificationEntity>,
   ) {}
 
-  async send(senderId: number, text: string, receiverId: number) {
+  async send(senderId: number, data: messageDTO, receiverId: number) {
     if (senderId == receiverId) {
       throw new BadRequestException('No se puede enviar un mensaje a sí mismo');
     }
@@ -31,7 +32,7 @@ export class MessageService {
     const receiver = await this.userRepository.findOneOrFail(receiverId);
 
     const message = await this.messageRepository.save({
-      text,
+      text: data.text,
       sender,
       receiver,
     });
