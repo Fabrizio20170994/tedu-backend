@@ -10,6 +10,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from '../auth/entities/user.entity';
 import { User } from '../auth/user.decorator';
+import { messageDTO } from './dto/message.dto';
 import { MessageService } from './message.service';
 
 @Controller('messages')
@@ -20,10 +21,10 @@ export class MessageController {
   @UseGuards(AuthGuard())
   async sendMessage(
     @User() { id }: UserEntity,
-    @Body() text: string,
+    @Body() data: messageDTO,
     @Param('userId') userId: number,
   ) {
-    return this.messageService.send(id, text, userId);
+    return this.messageService.send(id, data, userId);
   }
 
   @Get('/users')
