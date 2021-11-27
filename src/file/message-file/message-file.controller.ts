@@ -1,4 +1,11 @@
-import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from '../../auth/entities/user.entity';
 import { User } from '../../auth/user.decorator';
@@ -11,11 +18,20 @@ export class MessageFileController {
 
   @Post()
   @UseGuards(AuthGuard())
-  async saveCommentFiles(
+  async saveMessageFiles(
     @User() { id }: UserEntity,
     @Param('messageId') postId: number,
     @Body() data: Partial<FileDTO>,
   ) {
     return this.fileService.messageFile(id, data, postId);
+  }
+  @Delete(':fileId')
+  @UseGuards(AuthGuard())
+  async deleteMessageFile(
+    @User() { id }: UserEntity,
+    @Param('messageId') messageId: number,
+    @Param('fileId') fileId: number,
+  ) {
+    return this.fileService.delete(id, messageId, fileId);
   }
 }
