@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MessageEntity } from '../../message/message.entity';
@@ -34,6 +38,7 @@ export class MessageFileService {
     const message = await this.messageRepository.findOneOrFail(messageId, {
       relations: ['sender'],
     });
+
     if (message.sender.id != userId) {
       throw new UnauthorizedException(
         'Este mensaje no pertenece al usuario actualmente logeado',
@@ -42,6 +47,7 @@ export class MessageFileService {
     const file = await this.messageFileRepository.findOneOrFail(fileId, {
       relations: ['message'],
     });
+
     if (file.message.id != messageId) {
       throw new UnauthorizedException(
         'Este archivo no pertenece al mensaje ingresado',

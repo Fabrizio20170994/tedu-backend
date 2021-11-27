@@ -1,6 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CourseEntity } from '../../course/course.entity';
 import { PostEntity } from '../../post/post.entity';
 import { FileDTO } from '../file.dto';
 import { PostFileEntity } from './post-file.entity';
@@ -12,6 +17,8 @@ export class PostFileService {
     private postFileRepository: Repository<PostFileEntity>,
     @InjectRepository(PostEntity)
     private postRepository: Repository<PostEntity>,
+    @InjectRepository(CourseEntity)
+    private courseRepository: Repository<CourseEntity>,
   ) {}
 
   async postFile(userId: number, data: Partial<FileDTO>, postId: number) {
@@ -36,11 +43,17 @@ export class PostFileService {
     postId: number,
     fileId: number,
   ) {
-    const post = await this.postRepository.findOne(postId, {
+    const course = await this.courseRepository.findOneOrFail(courseId);
+
+    if (!course) {
+      throw new NotFoundException('No se encontró el curso ingresado');
+    }
+
+    const post = await this.postRepository.findOneOrFail(postId, {
       relations: ['course', 'user'],
     });
 
-    if (post.course.id != courseId) {
+    if (post.course.id != course.id) {
       throw new UnauthorizedException(
         'La publicación ingresada no pertenece al curso ingresado',
       );
@@ -52,11 +65,11 @@ export class PostFileService {
       );
     }
 
-    const file = await this.postFileRepository.findOne(fileId, {
+    const file = await this.postFileRepository.findOneOrFail(fileId, {
       relations: ['post'],
     });
 
-    if (file.post.id != postId) {
+    if (file.post.id != post.id) {
       throw new UnauthorizedException(
         'El archivo no pertenece a la publicación ingresada',
       );
