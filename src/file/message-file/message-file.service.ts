@@ -26,6 +26,7 @@ export class MessageFileService {
     const fileToCreate = this.messageFileRepository.create();
     fileToCreate.message = message;
     fileToCreate.key = data.key;
+    fileToCreate.name = data.name;
     return await this.messageFileRepository.save(fileToCreate);
   }
 }

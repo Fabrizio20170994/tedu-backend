@@ -26,6 +26,7 @@ export class CommentFileService {
     const fileToCreate = this.commentFileRepository.create();
     fileToCreate.comment = comment;
     fileToCreate.key = data.key;
+    fileToCreate.name = data.name;
     return await this.commentFileRepository.save(fileToCreate);
   }
 }

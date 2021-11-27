@@ -7,6 +7,9 @@ export class PostFileEntity extends AbstractEntity {
   @Column('varchar', { length: 255, nullable: false })
   key: string;
 
+  @Column('varchar', { length: 255, nullable: false })
+  name: string;
+
   @ManyToOne(() => PostEntity, (post) => post.files, {
     onDelete: 'CASCADE',
     nullable: false,

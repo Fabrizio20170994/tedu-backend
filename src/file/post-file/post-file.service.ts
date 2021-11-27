@@ -26,6 +26,7 @@ export class PostFileService {
     const fileToCreate = this.postFileRepository.create();
     fileToCreate.post = post;
     fileToCreate.key = data.key;
+    fileToCreate.name = data.name;
     return await this.postFileRepository.save(fileToCreate);
   }
 }

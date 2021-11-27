@@ -7,6 +7,9 @@ export class CommentFileEntity extends AbstractEntity {
   @Column('varchar', { length: 255, nullable: false })
   key: string;
 
+  @Column('varchar', { length: 255, nullable: false })
+  name: string;
+
   @ManyToOne(() => CommentEntity, (comment) => comment.files, {
     onDelete: 'CASCADE',
     nullable: false,

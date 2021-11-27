@@ -115,7 +115,8 @@ export class PostService {
         for (const file of data.files) {
           const fileToCreate = this.postFileRepository.create();
           fileToCreate.post = post;
-          fileToCreate.key = file;
+          fileToCreate.key = file.key;
+          fileToCreate.name = file.name;
           await this.postFileRepository.save(fileToCreate);
         }
       }
@@ -183,7 +184,8 @@ export class PostService {
         for (const file of data.files) {
           const fileToCreate = this.postFileRepository.create();
           fileToCreate.post = post;
-          fileToCreate.key = file;
+          fileToCreate.key = file.key;
+          fileToCreate.name = file.name;
           await this.postFileRepository.save(fileToCreate);
         }
       }

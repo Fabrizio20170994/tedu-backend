@@ -8,6 +8,9 @@ export class MessageFileEntity extends AbstractEntity {
   @Column('varchar', { length: 255, nullable: false })
   key: string;
 
+  @Column('varchar', { length: 255, nullable: false })
+  name: string;
+
   @ManyToOne(() => MessageEntity, (message) => message.files, {
     onDelete: 'CASCADE',
     nullable: false,
