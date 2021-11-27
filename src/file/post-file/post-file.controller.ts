@@ -1,4 +1,11 @@
-import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from '../../auth/entities/user.entity';
 import { User } from '../../auth/user.decorator';
@@ -18,5 +25,16 @@ export class PostFileController {
     @Body() data: Partial<FileDTO>,
   ) {
     return this.fileService.postFile(id, data, postId);
+  }
+
+  @Delete(':fileId')
+  @UseGuards(AuthGuard())
+  async deleteFile(
+    @User() { id }: UserEntity,
+    @Param('course_id') courseId: number,
+    @Param('post_id') postId: number,
+    @Param('fileId') fileId: number,
+  ) {
+    return this.fileService.delete(id, courseId, postId, fileId);
   }
 }
