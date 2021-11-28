@@ -45,7 +45,8 @@ export class MessageService {
       for (const file of data.files) {
         const fileToCreate = this.messageFileRepository.create();
         fileToCreate.message = message;
-        fileToCreate.key = file;
+        fileToCreate.key = file.key;
+        fileToCreate.name = file.name;
         await this.messageFileRepository.save(fileToCreate);
       }
     }
