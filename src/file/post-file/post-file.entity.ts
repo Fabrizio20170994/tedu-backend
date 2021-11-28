@@ -4,7 +4,7 @@ import { PostEntity } from '../../post/post.entity';
 
 @Entity('post_file')
 export class PostFileEntity extends AbstractEntity {
-  @Column('varchar', { length: 255, nullable: false })
+  @Column('varchar', { nullable: false })
   key: string;
 
   @Column('varchar', { length: 255, nullable: false })

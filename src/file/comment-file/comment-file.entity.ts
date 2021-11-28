@@ -4,7 +4,7 @@ import { AbstractEntity } from '../../commons/abstract-entity';
 
 @Entity('comment_file')
 export class CommentFileEntity extends AbstractEntity {
-  @Column('varchar', { length: 255, nullable: false })
+  @Column('varchar', { nullable: false })
   key: string;
 
   @Column('varchar', { length: 255, nullable: false })
