@@ -5,7 +5,7 @@ import { PostEntity } from '../../post/post.entity';
 
 @Entity('message_file')
 export class MessageFileEntity extends AbstractEntity {
-  @Column('varchar', { nullable: false })
+  @Column('varchar', { length: 500, nullable: false })
   key: string;
 
   @Column('varchar', { length: 255, nullable: false })
