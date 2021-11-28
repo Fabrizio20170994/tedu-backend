@@ -16,8 +16,36 @@ export class AttendanceService {
     @InjectRepository(CourseEntity)
     private courseRepository: Repository<CourseEntity>,
     @InjectRepository(UserCourseEntity)
-    private userCourseRepository: Repository<CourseEntity>,
+    private userCourseRepository: Repository<UserCourseEntity>,
   ) {}
+
+  /*async findCourseAttendances(
+    user_id: number,
+    course_id: number,
+  ): Promise<AttendanceEntity[]> {
+    const course = await this.courseRepository.findOneOrFail(course_id, {
+      relations: ['teacher'],
+    });
+
+    const user = await this.userRepository.findOneOrFail(user_id);
+    const userCourse = await this.userCourseRepository.findOne({
+      where: {
+        user,
+        course,
+      },
+    });
+    // Si el usuario es el profesor o un usuario del curso, mostrar la asistencia
+    if (course.teacher.id == user_id || userCourse) {
+      return await this.attendanceRepository
+        .createQueryBuilder('attendance')
+        .where('attendance.course_id = :courseId', { courseId: course_id })
+        .getMany();
+    } else {
+      throw new UnauthorizedException(
+        'Usuario no autorizado para esta operación',
+      );
+    }
+  }*/
 
   async findCourseAttendances(
     user_id: number,
@@ -38,6 +66,8 @@ export class AttendanceService {
     if (course.teacher.id == user_id || userCourse) {
       return await this.attendanceRepository
         .createQueryBuilder('attendance')
+        .leftJoinAndSelect('attendance.userAttendances', 'userAttendances')
+        .leftJoinAndSelect('userAttendances.user', 'user')
         .where('attendance.course_id = :courseId', { courseId: course_id })
         .getMany();
     } else {
