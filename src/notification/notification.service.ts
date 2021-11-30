@@ -18,7 +18,14 @@ export class NotificationService {
 
     return await this.notificationRepository.find({
       where: { user, seen: false },
-      relations: ['message', 'post', 'comment'],
+      relations: [
+        'message',
+        'post',
+        'comment',
+        'post.course',
+        'comment.post',
+        'comment.post.course',
+      ],
       order: { created: 'DESC' },
     });
   }
