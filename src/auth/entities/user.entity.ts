@@ -13,19 +13,19 @@ import { EventEntity } from '../../event/event.entity';
 
 @Entity('user')
 export class UserEntity extends AbstractEntity {
-  @Column()
+  @Column({ length: 100 })
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 50 })
   institution: string;
 
   @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 15 })
   phone: string;
 
-  @Column()
+  @Column({ length: 120 })
   @Exclude()
   password: string;
 

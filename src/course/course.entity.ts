@@ -23,7 +23,7 @@ export class CourseEntity extends AbstractEntity {
   @Column('int', { default: 0 })
   vacancies: number;
 
-  @Column('varchar', { length: 180 })
+  @Column('varchar', { length: 80 })
   name: string;
 
   @Column('varchar', { length: 200, nullable: true })
