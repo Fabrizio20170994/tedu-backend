@@ -5,10 +5,10 @@ import { UserAttendanceEntity } from '../user-attendance/user-attendance.entity'
 
 @Entity('attendance')
 export class AttendanceEntity extends AbstractEntity {
-  @Column({ name: 'attendance_date' })
+  @Column({ type: 'timestamp without time zone', name: 'attendance_date' })
   attendance_date: Date;
 
-  @Column({ name: 'attendance_date_end' })
+  @Column({ type: 'timestamp without time zone', name: 'attendance_date_end' })
   attendance_date_end: Date;
 
   @Column({ default: false })
