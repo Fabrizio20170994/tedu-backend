@@ -20,6 +20,7 @@ export class DatabaseConnectionService implements TypeOrmOptionsFactory {
       dropSchema: false,
       logging: true,
       entities: ['dist/**/*.entity.js'],
+      ssl: process.env.NODE_ENV === 'production',
     };
   }
 }
