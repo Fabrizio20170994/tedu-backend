@@ -15,6 +15,7 @@ import { attendanceDTO } from '../attendance/dtos/attendance.dto';
 import { AttendanceEntity } from '../attendance/attendance.entity';
 import { EventEntity } from '../event/event.entity';
 import { EventDTO } from '../event/dtos/event.dto';
+import { UserCourseService } from '../user-course/user-course.service';
 
 @Injectable()
 export class CourseService {
@@ -27,6 +28,7 @@ export class CourseService {
     private userRepository: Repository<UserEntity>,
     @InjectRepository(AttendanceEntity)
     private attendanceRepository: Repository<AttendanceEntity>,
+    private userCourseService: UserCourseService,
   ) {}
 
   async findAll(): Promise<CourseEntity[]> {
@@ -98,6 +100,7 @@ export class CourseService {
       data.weeks,
       data.schedule,
     );
+    await this.userCourseService.synchronizeCalendar(teacher, cursoCreado);
     return cursoCreado;
   }
 
